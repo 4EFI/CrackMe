@@ -50,14 +50,13 @@ Start:          mov bx, 0b800h              ; ES = VideoSeg
 ;------------------------------------------------
 
 BuffSize = 256d  
-PasswordBuff    db BuffSize dup (0)
+PasswordBuff    db BuffSize dup (12, 64, 85, 14)
 
 Correct         db "Correct Password :))", 0
 Wrong           db "Wrong Password :(", 0
 
 Password        db "SanyaGey1234567890", 0
 
-include 	    SCR_HNDL.ASM 	            ; Clear screen function
 include 	    STR_HNDL.ASM 	            ; Str handler
 
 end             Start
