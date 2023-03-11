@@ -14,7 +14,6 @@ Start:          mov bx, 0b800h              ; ES = VideoSeg
                 mov es, bx
 
                 mov  bx, offset PasswordBuff
-                mov  cx, BuffSize
                 call Input
 
                 mov  bx, offset PasswordBuff
@@ -27,21 +26,15 @@ Start:          mov bx, 0b800h              ; ES = VideoSeg
 
                 __Correct:
 
-                mov  ah, 12h
-                mov  bh, 0
-                mov  bl, 23d
-                mov  cx, offset Correct
-                call PrintStr
+                mov  dx, offset Correct
+                call PrintStrCmd
 
                 jmp __End
 
                 __Wrong:
 
-                mov  ah, 4eh
-                mov  bh, 0
-                mov  bl, 23d
-                mov  cx, offset Wrong
-                call PrintStr
+                mov  dx, offset Wrong
+                call PrintStrCmd
 
                 __End:
 
@@ -49,15 +42,36 @@ Start:          mov bx, 0b800h              ; ES = VideoSeg
 
 ;------------------------------------------------
 
-BuffSize = 256d  
-PasswordBuff    db BuffSize dup (12, 64, 85, 14)
+BuffSize = 16d  
+PasswordBuff    db BuffSize dup (12, 64, 85, 14) , 0
 
-Correct         db "Correct Password :))", 0
-Wrong           db "Wrong Password :(", 0
+Correct         db "Correct Password :))$"
+Wrong           db "Wrong Password :($"
 
-Password        db "SanyaGey1234567890", 0
+Password        db "123", 0
 
 include 	    STR_HNDL.ASM 	            ; Str handler
+include 	    SCR_HNDL.ASM 	            ; Scr handler
+
+;------------------------------------------------
+;   PRINT STR TO CMD LINE
+;------------------------------------------------
+; ENTRY:    DX = STR
+; EXPECTS:  END SYM = "$"
+; DESTROYS: NONE
+;------------------------------------------------
+
+PrintStrCmd     proc
+                push ax
+
+                mov ah, 09h
+                int 21h
+
+                pop ax
+                ret
+                endp
+
+;------------------------------------------------
 
 end             Start
 

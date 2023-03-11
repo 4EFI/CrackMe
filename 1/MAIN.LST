@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 1
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 1
 main.asm
 
 
@@ -35,1368 +35,1393 @@ main.asm
      30	0100  BB B800		     Start:	     mov bx, 0b800h		 ; ES =	VideoSeg
      31	0103  8E C3				     mov es, bx
      32
-     33	0105  BB 0142r				     mov  bx, offset PasswordBuff
-     34	0108  B9 0100 90			     mov  cx, BuffSize
-     35	010C  E8 03D3				     call Input
-     36
-     37	010F  BB 0142r				     mov  bx, offset PasswordBuff
-     38	0112  B9 0269r				     mov  cx, offset Password
-     39	0115  E8 0502				     call strcmp		 ; if( strcmp( Password, Buff )	== 0 )
-     40	0118  3D 0000				     cmp  ax, 0
-     41	011B  74 03				     je	__Correct
-     42
-     43	011D  EB 10 90				     jmp __Wrong
-     44
-     45	0120					     __Correct:
-     46
-     47	0120  B4 12				     mov  ah, 12h
-     48	0122  B7 00				     mov  bh, 0
-     49	0124  B3 17				     mov  bl, 23d
-     50	0126  B9 0242r				     mov  cx, offset Correct
-     51	0129  E8 01A9				     call PrintStr
+     33	0105  BB 0132r				     mov  bx, offset PasswordBuff
+     34	0108  E8 03D4				     call Input
+     35
+     36	010B  BB 0132r				     mov  bx, offset PasswordBuff
+     37	010E  B9 016Ar				     mov  cx, offset Password
+     38	0111  E8 010D				     call strcmp		 ; if( strcmp( Password, Buff )	== 0 )
+     39	0114  3D 0000				     cmp  ax, 0
+     40	0117  74 03				     je	__Correct
+     41
+     42	0119  EB 0A 90				     jmp __Wrong
+     43
+     44	011C					     __Correct:
+     45
+     46	011C  BA 0143r				     mov  dx, offset Correct
+     47	011F  E8 044A				     call PrintStrCmd
+     48
+     49	0122  EB 07 90				     jmp __End
+     50
+     51	0125					     __Wrong:
      52
-     53	012C  EB 0D 90				     jmp __End
-     54
-     55	012F					     __Wrong:
-     56
-     57	012F  B4 4E				     mov  ah, 4eh
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 2
+     53	0125  BA 0158r				     mov  dx, offset Wrong
+     54	0128  E8 0441				     call PrintStrCmd
+     55
+     56	012B					     __End:
+     57
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 2
 main.asm
 
 
 
-     58	0131  B7 00				     mov  bh, 0
-     59	0133  B3 17				     mov  bl, 23d
-     60	0135  B9 0257r				     mov  cx, offset Wrong
-     61	0138  E8 019A				     call PrintStr
-     62
-     63	013B					     __End:
-     64
-     65						     EXIT
-1    66	013B  90					     nop
-1    67	013C  B8 4C00					     mov ax, 4c00h
-1    68	013F  CD 21					     int 21h
-1    69	0141  90					     nop
-     70
-     71				     ;------------------------------------------------
-     72
-     73	      =0100		     BuffSize =	256d
-     74	0142  0100*(00)		     PasswordBuff    db	BuffSize dup (0)
+     58						     EXIT
+1    59	012B  90					     nop
+1    60	012C  B8 4C00					     mov ax, 4c00h
+1    61	012F  CD 21					     int 21h
+1    62	0131  90					     nop
+     63
+     64				     ;------------------------------------------------
+     65
+     66	      =0004		     BuffSize =	4d
+     67	0132  04*(0C 40	55 0E) 00    PasswordBuff    db	BuffSize dup (12, 64, 85, 14) ,	0
+     68
+     69	0143  43 6F 72 72 65 63	74+  Correct	     db	"Correct Password :))$"
+     70	      20 50 61 73 73 77	6F+
+     71	      72 64 20 3A 29 29	24
+     72	0158  57 72 6F 6E 67 20	50+  Wrong	     db	"Wrong Password	:($"
+     73	      61 73 73 77 6F 72	64+
+     74	      20 3A 28 24
      75
-     76	0242  43 6F 72 72 65 63	74+  Correct	     db	"Correct Password :))",	0
-     77	      20 50 61 73 73 77	6F+
-     78	      72 64 20 3A 29 29	00
-     79	0257  57 72 6F 6E 67 20	50+  Wrong	     db	"Wrong Password	:(", 0
-     80	      61 73 73 77 6F 72	64+
-     81	      20 3A 28 00
-     82
-     83	0269  53 61 6E 79 61 47	65+  Password	     db	"SanyaGey1234567890", 0
-     84	      79 31 32 33 34 35	36+
-     85	      37 38 39 30 00
-     86
-     87				     include		 SCR_HNDL.ASM			 ; Clear screen	function
+     76	016A  31 32 33 00	     Password	     db	"123", 0
+     77
+     78				     include		 STR_HNDL.ASM			 ; Str handler
+1    79
+1    80				     ;------------------------------------------------
+1    81				     ;	     GET STR LEN
+1    82				     ;------------------------------------------------
+1    83				     ; ENTRY:	     BX	= STR ADDR
+1    84				     ; EXIT:	     AX	= LEN
+1    85				     ; EXPECTS:	 END SYM = '\0'
+1    86				     ; DESTROYS: AX
+1    87				     ;------------------------------------------------
 1    88
-1    89				     ; SCREEN HANDLER
+1    89	016E			     StrLen	     proc
 1    90
-1    91				     ;------------------------------------------------
-1    92				     ;	     FILL SCREEN BY SYM
-1    93				     ;	     FROM ( X; Y ) to (	X + WIDTH; Y + HEIGHT )
-1    94				     ;------------------------------------------------
-1    95				     ; ENTRY:	     AH	= COLOR	ATTR
-1    96				     ;			     AL	= SYM
-1    97				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
-1    98				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
-1    99				     ;			     CH	= WIDTH
-1   100				     ;			     CL	= HEIGHT
-1   101				     ; EXIT:	     NONE
-1   102				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
-1   103				     ; DESTROYS:     NONE
-1   104				     ;------------------------------------------------
+1    91	016E  33 C0				     xor ax, ax	     ; i = 0
+1    92
+1    93	0170  51 56						     push cx si		     ; push (1)	(2)
+1    94
+1    95	0172  8B F3				     __Next:		     mov  si, bx     ; SI = BX + i
+1    96	0174  03 F0										 add  si, ax
+1    97
+1    98	0176  40										     inc  ax		     ; i++
+1    99	0177  8B 0C										     mov  cx, [si]   ; CX = current +
+    100				     symbol
+1   101
+1   102	0179  80 FD 00										     cmp  ch, 0d     ; if( ch ==    +
+    103				     '\0' )
+1   104	017C  74 02										     je	__End
 1   105
-1   106	027C			     FillScreen		     proc
+1   106	017E  EB F2										     jmp __Next
 1   107
-1   108	027C  53						     push bx			     ; push (1)
-1   109	027D  51						     push cx			     ; push (2)
-1   110	027E  52						     push dx			     ; push (3)
-1   111
-1   112	027F  50						     push ax			     ; push (4)
-1   113	0280  E8 0035						     call GetVideoPos
-1   114	0283  8B D8						     mov bx, ax
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 3
+1   108	0180							     __End:
+1   109	0180  5E 59						     pop si cx		     ; pop  (2)	(1)
+1   110
+1   111	0182  C3				     ret
+1   112	0183					     endp
+1   113
+1   114				     ;------------------------------------------------
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 3
 main.asm
 
 
 
-1   115	0285  58						     pop ax			     ; pop  (4)
-1   116
-1   117	0286  8A F5						     __NextLine:		     mov dh, ch		     ; i =  +
-    118				     CH
-1   119
-1   120	0288  53											     push bx		    +
-    121				     ; push (5)
-1   122
-1   123	0289  26: 89 07											     __Next:		    +
-    124				     mov es:[bx], ax
-1   125	028C  83 C3 02														    +
-    126				     add bx, 2
-1   127
-1   128	028F  FE CE														    +
-    129				     dec dh		     ; i--
-1   130
-1   131	0291  80 FE 00														    +
-    132				     cmp dh, 0d		     ; if( dh == 0 )
-1   133	0294  74 02														    +
-    134				     je	__End
-1   135
-1   136	0296  EB F1														    +
-    137				     jmp __Next
-1   138	0298												     __End:
-1   139
-1   140	0298  5B											     pop bx		    +
-    141				     ; pop  (5)
-1   142
-1   143	0299  81 C3 00A0										     add bx, 160d    ; BX +=+
-    144				     2*80
+1   115				     ;	     GET ADDR OF CHR IN	ARR
+1   116				     ;	     RET NULL IF NOT FOUND
+1   117				     ;------------------------------------------------
+1   118				     ; ENTRY:	     BX	= ARR ADDR
+1   119				     ;			     CL	= CHR
+1   120				     ;			     DX	= LEN OF THE COMPARED PART (IN BYTES)
+1   121				     ; EXIT:	     AX	= ADDR OF CHR
+1   122				     ; DESTROYS: AX
+1   123				     ;------------------------------------------------
+1   124
+1   125	0183			     MemChr		     proc
+1   126
+1   127	0183  56						     push si		     ; push (1)
+1   128
+1   129	0184  33 C0						     xor ax, ax		     ; AX = NULL
+1   130	0186  33 F6						     xor si, si		     ; i  = 0
+1   131
+1   132	0188  83 FA 00						     cmp dx, 0d		     ; if( len == 0 )
+1   133	018B  74 0F						     je	__End
+1   134
+1   135	018D  38 08						     __Next:		     cmp bx[si], cl	     ; if( Addr[i]  +
+    136				     ==	CHR )
+1   137	018F  74 07										     je	__Found
+1   138
+1   139	0191  46										     inc si
+1   140
+1   141	0192  3B F2										     cmp si, dx
+1   142	0194  74 06										     je	__End
+1   143
+1   144	0196  EB F5										     jmp __Next
 1   145
-1   146	029D  FE C9											     dec cl		    +
-    147				     ; CL--
-1   148
-1   149	029F  80 F9 00											     cmp cl, 0d	     ; if(  +
-    150				     CL	== 0 )
-1   151	02A2  74 02											     je	__EndNextLine
+1   146	0198  8B C3						     __Found:		     mov ax, bx			     ; AX = +
+    147				     ArrAddr + i
+1   148	019A  03 C6										     add ax, si
+1   149
+1   150	019C							     __End:
+1   151	019C  5E						     pop si		     ; pop  (1)
 1   152
-1   153	02A4  EB E0											     jmp __NextLine
-1   154	02A6							     __EndNextLine:
+1   153	019D  C3						     ret
+1   154	019E							     endp
 1   155
-1   156	02A6  5A						     pop dx			     ; pop  (3)
-1   157	02A7  59						     pop cx			     ; pop  (2)
-1   158	02A8  5B						     pop bx			     ; pop  (1)
-1   159
-1   160	02A9  C3						     ret
-1   161	02AA							     endp
-1   162
-1   163				     ;------------------------------------------------
-1   164				     ;	     CLEAR SCREEN BY SYM
+1   156				     ;------------------------------------------------
+1   157				     ;	     GET ADDR OF CHR IN	STR
+1   158				     ;	     RET NULL IF NOT FOUND
+1   159				     ;------------------------------------------------
+1   160				     ; ENTRY:	     BX	= ARR ADDR
+1   161				     ;			     CL	= CHR
+1   162				     ; EXIT:	     AX	= ADDR OF CHR
+1   163				     ; EXPECTS:	 END SYM = '\0'
+1   164				     ; DESTROYS: AX
 1   165				     ;------------------------------------------------
-1   166				     ; ENTRY:	     AH	= COLOR	ATTR
-1   167				     ;			     AL	= SYM
-1   168				     ; EXIT:	     NONE
-1   169				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
-1   170				     ; DESTROYS:     NONE
-1   171				     ;------------------------------------------------
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 4
+1   166
+1   167	019E			     StrChr		     proc
+1   168
+1   169	019E  56						     push si		     ; push (1)
+1   170
+1   171	019F  33 C0						     xor ax, ax		     ; AX = NULL
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 4
 main.asm
 
 
 
-1   172
-1   173	02AA			     ClrScreen		     proc
-1   174
-1   175	02AA  53						     push bx			     ; push (1)
-1   176	02AB  51						     push cx			     ; push (2)
-1   177
-1   178	02AC  33 DB						     xor bx, bx			     ; X = 0; Y	= 0
-1   179	02AE  B5 50						     mov ch, 80d
-1   180	02B0  B1 19						     mov cl, 25d
-1   181	02B2  E8 FFC7						     call FillScreen
+1   172	01A1  33 F6						     xor si, si		     ; i  = 0
+1   173
+1   174	01A3  38 08						     __Next:		     cmp byte ptr bx[si], cl	     ; if(  +
+    175				     Addr[i] ==	CHR )
+1   176	01A5  74 08										     je	__Found
+1   177	01A7  80 38 00										     cmp byte ptr bx[si], 0d	    +
+    178				     ; if( Addr[i] == '\0' )
+1   179	01AA  74 07										     je	__End
+1   180
+1   181	01AC  46										     inc si
 1   182
-1   183	02B5  59						     pop cx			     ; pop  (2)
-1   184	02B6  5B						     pop bx			     ; pop  (1)
-1   185
-1   186	02B7  C3						     ret
-1   187	02B8							     endp
+1   183	01AD  EB F4										     jmp __Next
+1   184
+1   185	01AF  8B C3						     __Found:		     mov ax, bx				    +
+    186				     ; AX = ArrAddr + i
+1   187	01B1  03 C6										     add ax, si
 1   188
-1   189				     ;------------------------------------------------
-1   190				     ;	     GET VIDEO POS FROM	(X; Y)
-1   191				     ;------------------------------------------------
-1   192				     ; ENTRY:	     BH	= X LEFT CORNER	COORDS [0; 79]
-1   193				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
-1   194				     ; EXIT:	     AX	= POS
-1   195				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
-1   196				     ; DESTROYS:     AX
-1   197				     ;------------------------------------------------
-1   198
-1   199	02B8			     GetVideoPos	     proc
-1   200
-1   201	02B8  D0 E7						     shl bh, 1		     ; bh /= 2
-1   202
-1   203	02BA  52						     push dx		     ; push (1)
-1   204
-1   205	02BB  B0 A0						     mov al, 160d    ; ax = 160	* Y + 2	* X
-1   206	02BD  F6 E3						     mul bl
-1   207	02BF  BA 0000						     mov dx, 0
-1   208	02C2  02 D7						     add dl, bh
-1   209	02C4  03 C2						     add ax, dx
+1   189	01B3							     __End:
+1   190	01B3  5E						     pop si		     ; pop  (1)
+1   191
+1   192	01B4  C3						     ret
+1   193	01B5							     endp
+1   194
+1   195				     ;------------------------------------------------
+1   196				     ;	     THE MEMSET	FUNCTION FILLS
+1   197				     ;	     THE FIRST N BYTES OF THE MEMORY
+1   198				     ;	     LOCATION POINTED TO BY THE
+1   199				     ;	     DESTINATION ARGUMENT WITH THE
+1   200				     ;	     CHARACTER SPECIFIED BY THE	CHR ARGUMENT
+1   201				     ;------------------------------------------------
+1   202				     ; ENTRY:	     BX	= DESTINATION
+1   203				     ;			     CL	= CHR
+1   204				     ;			     DX	= N
+1   205				     ; EXIT:	     NONE
+1   206				     ; DESTROYS: NONE
+1   207				     ;------------------------------------------------
+1   208
+1   209	01B5			     MemSet		     proc
 1   210
-1   211	02C6  5A						     pop dx		     ; pop  (1)
+1   211	01B5  56						     push si		     ; push (1)
 1   212
-1   213	02C7  D0 EF						     shr bh, 1		     ; bh *= 2
+1   213	01B6  33 F6						     xor si, si		     ; i = 0
 1   214
-1   215	02C9  C3						     ret
-1   216	02CA							     endp
+1   215	01B8  83 FA 00						     cmp dx, 0d		     ; if( N ==	0 )
+1   216	01BB  74 09						     je	__End
 1   217
-1   218				     ;------------------------------------------------
-1   219				     ;	     PRINT SYM IN (X; Y)
-1   220				     ;------------------------------------------------
-1   221				     ; ENTRY:	     AH	= SYM COLOR
-1   222				     ;			     AL	= SYM CHAR
-1   223				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
-1   224				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
-1   225				     ; EXIT:	     NONE
-1   226				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
-1   227				     ; DESTROYS:     NONE
-1   228				     ;------------------------------------------------
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 5
+1   218	01BD  88 08						     __Next:		     mov byte ptr bx[si], cl	     ; BX[i]+
+    219				     = CHR
+1   220
+1   221	01BF  46										     inc si			    +
+    222				     ; i++
+1   223
+1   224	01C0  3B F2										     cmp si, dx			    +
+    225				     ; if( i ==	N )
+1   226	01C2  74 02										     je	__End
+1   227
+1   228	01C4  EB F7										     jmp __Next
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 5
 main.asm
 
 
 
-1   229
-1   230	02CA			     PrintChar		     proc
+1   229	01C6							     __End:
+1   230	01C6  5E						     pop     si			     ; pop  (1)
 1   231
-1   232	02CA  57						     push di		     ; push (1)
-1   233	02CB  50						     push ax		     ; push (2)
+1   232	01C7  C3						     ret
+1   233	01C8							     endp
 1   234
-1   235	02CC  E8 FFE9						     call GetVideoPos
-1   236
-1   237	02CF  8B F8						     mov di, ax		     ; print( ax )
-1   238	02D1  58						     pop ax		     ; pop  (2)
-1   239	02D2  AB						     stosw
-1   240
-1   241	02D3  5F						     pop di		     ; pop  (1)
-1   242
-1   243	02D4  C3						     ret
-1   244	02D5							     endp
-1   245
-1   246				     ;------------------------------------------------
-1   247				     ;	     PRINT STR IN (X; Y)
+1   235				     ;------------------------------------------------
+1   236				     ;	     THE MEMCPY	FUNCTION COPIES	N BYTES
+1   237				     ;	     FROM THE ARRAY (SOURCE) TO	THE ARRAY
+1   238				     ;	     (DESTINATION). IF THE ARRAYS OVERLAP,
+1   239				     ;	     THE RESULT	OF THE COPY WILL BE UNDEFINED
+1   240				     ;------------------------------------------------
+1   241				     ; ENTRY:	     BX	= DESTINATION
+1   242				     ;			     CX	= SOURCE
+1   243				     ;			     DX	= N
+1   244				     ; EXPECTS:	     DS	= DESTINATION SEG
+1   245				     ;			     ES	= SOURCE      SEG
+1   246				     ; EXIT:	     NONE
+1   247				     ; DESTROYS: NONE
 1   248				     ;------------------------------------------------
-1   249				     ; ENTRY:	     AH	= SYM COLOR
-1   250				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
-1   251				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
-1   252				     ;			     CX	= STR ADDR
-1   253				     ; EXIT:	     NONE
-1   254				     ; EXPECTS:	     ES	     = 0b800h (VIDEO SEGMENT)
-1   255				     ;			     END SYM = '\0' || '$' || '\r'
-1   256				     ; DESTROYS:     NONE
-1   257				     ;------------------------------------------------
-1   258
-1   259	02D5			     PrintStr		     proc
+1   249
+1   250	01C8			     MemCpy		     proc
+1   251
+1   252	01C8  56 55						     push si bp		     ; push (1)	(2)
+1   253
+1   254	01CA  8B E9						     mov bp, cx		     ; BP = CX
+1   255
+1   256	01CC  33 F6						     xor si, si		     ; i = 0
+1   257
+1   258	01CE  83 FA 00						     cmp dx, 0		     ; if( N ==	0 )
+1   259	01D1  74 0E						     je	__End
 1   260
-1   261	02D5  50						     push ax		     ; push (1)
-1   262	02D6  53						     push bx		     ; push (2)
-1   263	02D7  52						     push dx		     ; push (3)
-1   264	02D8  56						     push si		     ; push (4)
-1   265
-1   266	02D9  8B F1						     mov si, cx		     ; SI = StrAddr
-1   267
-1   268	02DB  8A 14						     __Next:		     mov dl, [si]    ; DX = CurrSym
-1   269
-1   270	02DD  80 FA 00										     cmp dl, 0d		     ; if(  +
-    271				     DL	== 0 )
-1   272	02E0  74 14										     je	__End
-1   273	02E2  80 FA 0D										     cmp dl, 13d	     ; if(  +
-    274				     DL	== '\r'	)
-1   275	02E5  74 0F										     je	__End
-1   276	02E7  80 FA 24										     cmp dl, '$'	     ; if(  +
-    277				     DL	== '$' )
-1   278	02EA  74 0A										     je	__End
-1   279
-1   280	02EC  8A 04										     mov al, [si]    ; AL = CurrSym
-1   281	02EE  E8 FFD9										     call PrintChar
-1   282
-1   283	02F1  FE C7										     inc bh		     ; X++
-1   284	02F3  46										     inc si		     ;	    +
-    285				     CurrSymPos++
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 6
+1   261	01D3  52						     __Next:		     push dx				    +
+    262				     ; push (3)
+1   263	01D4  26: 8A 12										     mov  dl, es:bp[si]
+1   264	01D7  88 10										     mov  byte ptr ds:bx[si], dl    +
+    265				     ; DS:BX[i]	= ES:CX[i]
+1   266	01D9  5A										     pop  dx			    +
+    267				     ; pop  (3)
+1   268
+1   269	01DA  46										     inc si			    +
+    270				     ; i++
+1   271
+1   272	01DB  3B F2										     cmp si, dx			    +
+    273				     ; if( N ==	i )
+1   274	01DD  74 02										     je	__End
+1   275
+1   276	01DF  EB F2										     jmp __Next
+1   277
+1   278	01E1							     __End:
+1   279	01E1  5D 5E						     pop bp si		     ; pop  (2)	(1)
+1   280
+1   281	01E3  C3						     ret
+1   282	01E4							     endp
+1   283
+1   284				     ;------------------------------------------------
+1   285				     ;	     THE STRCPY	FUNCTION COPIES	THE DATA FROM
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 6
 main.asm
 
 
 
-1   286
-1   287	02F4  E2 E5										     loop __Next
-1   288	02F6							     __End:
-1   289
-1   290	02F6  5E						     pop si		     ; pop  (4)
-1   291	02F7  5A						     pop dx		     ; pop  (3)
-1   292	02F8  58						     pop ax		     ; pop  (2)
-1   293	02F9  5B						     pop bx		     ; pop  (1)
-1   294
-1   295	02FA  C3						     ret
-1   296	02FB							     endp
+1   286				     ;	     THE SOURCE	ARGUMENT TO THE	DESTINATION
+1   287				     ;	     UNTIL THE END-OF-LINE( NULL ) CHARACTER
+1   288				     ;	     IS	ENCOUNTERED.
+1   289				     ;	     COPYING IS	DONE ALONG WITH	THE
+1   290				     ;	     END-OF-LINE CHARACTER
+1   291				     ;------------------------------------------------
+1   292				     ; ENTRY:	     BX	= DESTINATION
+1   293				     ;			     CX	= SOURCE
+1   294				     ; EXIT:	     NONE
+1   295				     ; DESTROYS: NONE
+1   296				     ;------------------------------------------------
 1   297
-1   298				     ;------------------------------------------------
-1   299				     ;	     PRINT HORIZONTAL LINE IN (X; Y)
-1   300				     ;------------------------------------------------
-1   301				     ; ENTRY:	     AH	= SYM COLOR
-1   302				     ;			     AL	= SYM CHAR
-1   303				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
-1   304				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
-1   305				     ;			     CH	= WIDTH
-1   306				     ;			     DH	= LEFT	SYM
-1   307				     ;			     DL	= RIGHT	SYM
-1   308				     ; EXIT:	     NONE
-1   309				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
-1   310				     ; DESTROYS:     NONE
-1   311				     ;------------------------------------------------
-1   312
-1   313	02FB			     PrintHrzLine    proc
-1   314
-1   315	02FB  80 FD 01						     cmp ch, 1			     ; if( ch <= 1 ) ret
-1   316	02FE  76 37						     jbe __End
-1   317
-1   318	0300  53						     push bx			     ; push (1)
-1   319	0301  52						     push dx			     ; push (2)
-1   320
+1   298	01E4			     StrCpy		     proc
+1   299
+1   300	01E4  52 56 55						     push dx si	bp   ; push (1)	(2) (3)
+1   301
+1   302	01E7  8B E9						     mov bp, cx		     ; BP = CX
+1   303
+1   304	01E9  33 F6						     xor si, si		     ; i = 0
+1   305
+1   306	01EB  8A 12						     __Next:		     mov dl, bp[si]
+1   307	01ED  88 10										     mov byte ptr bx[si], dl	    +
+    308				     ; BX[i] = CX[i]
+1   309
+1   310	01EF  80 3A 00										     cmp byte ptr bp[si], 0d	    +
+    311				     ; if( CX[i] == 0 )
+1   312	01F2  74 03										     je	__End
+1   313
+1   314	01F4  46										     inc si			    +
+    315				     ; i++
+1   316
+1   317	01F5  EB F4										     jmp __Next
+1   318
+1   319	01F7							     __End:
+1   320	01F7  5D 5E 5A						     pop bp si dx    ; pop  (3)	(2) (1)
 1   321
-1   322	0302  50						     push ax			     ; push (3)
-1   323	0303  8A C6						     mov al, dh			     ; printf( "%c", LeftSym )
-1   324	0305  E8 FFC2						     call PrintChar
-1   325	0308  58						     pop ax			     ; pop  (3)
-1   326
-1   327	0309  50						     push ax			     ; push (4)
-1   328	030A  53						     push bx			     ; push (5)
-1   329	030B  02 FD						     add bh, ch			     ; X += ( WIDTH - 1	)
-1   330	030D  80 EF 01						     sub bh, 1
-1   331	0310  8A C2						     mov al, dl			     ; printf( "%c", RightSym )
-1   332	0312  E8 FFB5						     call PrintChar
-1   333	0315  5B						     pop bx			     ; pop  (5)
-1   334	0316  58						     pop ax			     ; pop  (4)
-1   335
-1   336	0317  53						     push bx			     ; push (6)
-1   337	0318  51						     push cx			     ; push (7)
-1   338
-1   339	0319  80 C7 01						     add bh, 1			     ; X += 1
-1   340	031C  80 ED 02						     sub ch, 2			     ; WIDTH -=	2
-1   341
-1   342	031F  80 FD 00						     cmp ch, 0			     ; if( ch == 0 )
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 7
+1   322	01FA  C3						     ret
+1   323	01FB							     endp
+1   324
+1   325				     ;------------------------------------------------
+1   326				     ;	     THE MEMCMP	FUNCTION COMPARES, BYTE	BY BYTE,
+1   327				     ;	     THE TWO ARRAYS ARR_1 AND ARR_2.
+1   328				     ;	     THE COMPARISON CONTINUES UNTIL N BYTES
+1   329				     ;	     HAVE BEEN CHECKED OR UNTIL	DIFFERENT
+1   330				     ;	     BYTES ARE ENCOUNTERED.
+1   331				     ;------------------------------------------------
+1   332				     ; ENTRY:	     BX	= ARR_1
+1   333				     ;			     CX	= ARR_2
+1   334				     ;			     DX	= N
+1   335				     ; EXIT:	     AX	= 0 ( ARR_1[i] == ARR_2[i] : FOR i in [0; N-1] )
+1   336				     ;			     AX	> 0 ( ARR_1[i] >  ARR_2[i] )
+1   337				     ;			     AX	< 0 ( ARR_1[i] <  ARR_2[i] )
+1   338				     ; DESTROYS: AX
+1   339				     ;------------------------------------------------
+1   340
+1   341	01FB			     MemCmp		     proc
+1   342
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 7
 main.asm
 
 
 
-1   343	0322  74 0F						     je	     __EndPrinting
+1   343	01FB  56 55						     push si bp		     ; push (1)	(2)
 1   344
-1   345	0324  33 D2						     xor dx, dx			     ; i = 0
+1   345	01FD  8B E9						     mov bp, cx		     ; BP = CX
 1   346
-1   347	0326  E8 FFA1						     __Next:		     call PrintChar
+1   347	01FF  33 F6						     xor si, si		     ; i  = 0
 1   348
-1   349	0329  FE C7										     inc bh
-1   350	032B  FE C6										     inc dh
+1   349	0201  83 FA 00						     cmp dx, 0d		     ; if( N ==	0 )
+1   350	0204  74 18						     je	__End
 1   351
-1   352	032D  3A F5										     cmp dh, ch
-1   353	032F  74 02										     je	 __EndPrinting
-1   354
-1   355	0331  EB F3										     jmp __Next
-1   356
-1   357	0333							     __EndPrinting:
-1   358
-1   359	0333  59						     pop cx			     ; pop  (7)
-1   360	0334  5B						     pop bx			     ; pop  (6)
-1   361
-1   362
-1   363	0335  5A						     pop dx			     ; pop  (2)
-1   364	0336  5B						     pop bx			     ; pop  (1)
+1   352	0206  33 C0						     __Next:		     xor  ax, ax			    +
+    353				     ; AX  = 0
+1   354	0208  8A 00										     mov  al, bx[si]		    +
+    355				     ; AL  = BX[i]
+1   356	020A  52										     push dx			    +
+    357				     ; push (3)
+1   358	020B  33 D2										     xor  dx, dx		    +
+    359				     ; DX = 0
+1   360	020D  8A 12										     mov  dl, bp[si]
+1   361	020F  2B C2										     sub  ax, dx		    +
+    362				     ; AX -= CX[i]
+1   363	0211  5A										     pop  dx			    +
+    364				     ; pop  (3)
 1   365
-1   366	0337							     __End:
-1   367	0337  C3						     ret
-1   368	0338							     endp
+1   366	0212  3D 0000										     cmp ax, 0d			    +
+    367				     ; if( AX != 0 )
+1   368	0215  75 07										     jne __End
 1   369
-1   370				     ;------------------------------------------------
-1   371				     ;	     PRINT VERTICAL LINE IN (X;	Y)
-1   372				     ;------------------------------------------------
-1   373				     ; ENTRY:	     AH	= SYM COLOR
-1   374				     ;			     AL	= SYM CHAR
-1   375				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
-1   376				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
-1   377				     ;			     CL	= HEIGHT
-1   378				     ;			     DH	= TOP  SYM
-1   379				     ;			     DL	= DOWN SYM
-1   380				     ; EXIT:	     NONE
-1   381				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
-1   382				     ; DESTROYS:     NONE
+1   370	0217  46										     inc si
+1   371
+1   372	0218  3B F2										     cmp si, dx			    +
+    373				     ; if( i ==	N )
+1   374	021A  74 02										     je	__End
+1   375
+1   376	021C  EB E8										     jmp __Next
+1   377	021E							     __End:
+1   378	021E  5D 5E						     pop bp si		     ; pop  (2)	(1)
+1   379
+1   380	0220  C3						     ret
+1   381	0221							     endp
+1   382
 1   383				     ;------------------------------------------------
-1   384
-1   385	0338			     PrintVrtLine    proc
-1   386
-1   387	0338  80 F9 01						     cmp cl, 1			     ; if( cl <= 1 ) ret
-1   388	033B  76 37						     jbe __End
-1   389
-1   390	033D  53						     push bx			     ; push (1)
-1   391	033E  52						     push dx			     ; push (2)
-1   392
-1   393
-1   394	033F  50						     push ax			     ; push (3)
-1   395	0340  8A C6						     mov al, dh			     ; printf( "%c", TopSym )
-1   396	0342  E8 FF85						     call PrintChar
-1   397	0345  58						     pop ax			     ; pop  (3)
-1   398
-1   399	0346  50						     push ax			     ; push (4)
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 8
+1   384				     ;	     THE MEMCMP	FUNCTION COMPARES, BYTE	BY BYTE,
+1   385				     ;	     THE TWO STRINGS STR_1 AND STR_2.
+1   386				     ;	     THE COMPARISON CONTINUES UNTIL THE
+1   387				     ;	     END-OF-LINE( NULL ) OR UNTIL DIFFERENT
+1   388				     ;	     BYTES ARE ENCOUNTERED.
+1   389				     ;------------------------------------------------
+1   390				     ; ENTRY:	     BX	= STR_1
+1   391				     ;			     CX	= STR_2
+1   392				     ; EXIT:	     AX	= 0 ( STR_1[i] == STR_2[i] : FOR ALL i )
+1   393				     ;			     AX	> 0 ( STR_1[i] >  STR_2[i] )
+1   394				     ;			     AX	< 0 ( STR_1[i] <  STR_2[i] )
+1   395				     ; DESTROYS: AX
+1   396				     ;------------------------------------------------
+1   397
+1   398	0221			     StrCmp		     proc
+1   399
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 8
 main.asm
 
 
 
-1   400	0347  53						     push bx			     ; push (5)
-1   401	0348  02 D9						     add bl, cl			     ; Y += ( HEIGHT - 1 )
-1   402	034A  80 EB 01						     sub bl, 1
-1   403	034D  8A C2						     mov al, dl			     ; printf( "%c", DownSym )
-1   404	034F  E8 FF78						     call PrintChar
-1   405	0352  5B						     pop bx			     ; pop  (5)
-1   406	0353  58						     pop ax			     ; pop  (4)
-1   407
-1   408	0354  53						     push bx			     ; push (6)
-1   409	0355  51						     push cx			     ; push (7)
-1   410
-1   411	0356  80 C3 01						     add bl, 1			     ; Y += 1
-1   412	0359  80 E9 02						     sub cl, 2			     ; HEIGHT -= 2
-1   413
-1   414	035C  80 F9 00						     cmp cl, 0			     ; if( cl == 0 )
-1   415	035F  74 0F						     je	     __EndPrinting
-1   416
-1   417	0361  33 D2						     xor dx, dx			     ; i = 0
-1   418
-1   419	0363  E8 FF64						     __Next:		     call PrintChar
-1   420
-1   421	0366  FE C3										     inc bl
-1   422	0368  FE C2										     inc dl
+1   400	0221  56 55						     push si bp		     ; push (1)	(2)
+1   401
+1   402	0223  8B E9						     mov bp, cx		     ; BP = CX
+1   403
+1   404	0225  33 F6						     xor si, si		     ; i  = 0
+1   405
+1   406	0227  33 C0						     __Next:		     xor  ax, ax			    +
+    407				     ; AX  = 0
+1   408	0229  8A 00										     mov  al, bx[si]		    +
+    409				     ; AL  = BX[i]
+1   410	022B  52										     push dx			    +
+    411				     ; push (3)
+1   412	022C  33 D2										     xor  dx, dx		    +
+    413				     ; DX = 0
+1   414	022E  8A 12										     mov  dl, bp[si]
+1   415	0230  2B C2										     sub  ax, dx		    +
+    416				     ; AX -= CX[i]
+1   417	0232  5A										     pop  dx			    +
+    418				     ; pop  (3)
+1   419
+1   420	0233  3D 0000										     cmp ax, 0d			    +
+    421				     ; if( AX != 0 )
+1   422	0236  75 08										     jne __End
 1   423
-1   424	036A  3A D1										     cmp dl, cl
-1   425	036C  74 02										     je	 __EndPrinting
-1   426
-1   427	036E  EB F3										     jmp __Next
-1   428
-1   429	0370							     __EndPrinting:
-1   430
-1   431	0370  59						     pop cx			     ; pop  (7)
-1   432	0371  5B						     pop bx			     ; pop  (6)
+1   424	0238  80 38 00										     cmp byte ptr bx[si], 0d	    +
+    425				     ; if( BX[i] == 0 )
+1   426	023B  74 03										     je	__End
+1   427
+1   428	023D  46										     inc si
+1   429
+1   430	023E  EB E7										     jmp __Next
+1   431	0240							     __End:
+1   432	0240  5D 5E						     pop bp si		     ; pop  (2)	(1)
 1   433
-1   434
-1   435	0372  5A						     pop dx			     ; pop  (2)
-1   436	0373  5B						     pop bx			     ; pop  (1)
-1   437
-1   438	0374							     __End:
-1   439	0374  C3						     ret
-1   440	0375							     endp
-1   441
-1   442				     ;------------------------------------------------
-1   443				     ;	     PRINT BOX
+1   434	0242  C3						     ret
+1   435	0243							     endp
+1   436
+1   437				     ;------------------------------------------------
+1   438				     ;	     TRANSLATE STR TO NUMBER
+1   439				     ;------------------------------------------------
+1   440				     ; ENTRY:	     BX	= STR ADDR
+1   441				     ; EXIT:	     AX	= NUM
+1   442				     ; EXPECTS:	     CX	= STR LEN
+1   443				     ; DESTROYS:     AX
 1   444				     ;------------------------------------------------
-1   445				     ; ENTRY:	     AX	= STR  ADDR
-1   446				     ;			     BX	= DATA ADDR
-1   447				     ; EXIT:	     NONE
-1   448				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
-1   449				     ; DESTROYS:     NONE
-1   450				     ;------------------------------------------------
+1   445
+1   446	0243			     Atoi		     proc
+1   447
+1   448	0243  33 C0						     xor ax, ax		     ; AX = 0
+1   449
+1   450	0245  52 56						     push dx si		     ; push (1)	(2)
 1   451
-1   452				     ; User's type
-1   453	0375  09*(00)		     Type_0  db		     9 dup (0)
-1   454
-1   455				     ; Template	types
-1   456				     ;				     0		     1		     2		     3		    +
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 9
+1   452	0247  33 D2						     xor dx, dx		     ; i = 0
+1   453
+1   454	0249  8B F3						     __Next:		     mov si, bx		     ; SI = BX +    +
+    455				     STR_LEN - i
+1   456	024B  03 F1										     add si, cx
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 9
 main.asm
 
 
 
-    457				     4		     5		     6		     7		     9
-1   458				     ;				     lt		     ld		     rt		     rd		    +
-    459				     lv		     rv		     th		     dh		     fill
-1   460	037E  C9 C8 BB BC BA BA	CD+  Type_1  db		     0c9h,   0c8h,   0bbh,   0bch,   0bah,   0bah,   0cdh,   0cdh,   0d
-    461	      CD 00
-1   462	0387  03 03 03 03 03 03	03+  Type_2  db		     003h,   003h,   003h,   003h,   003h,   003h,   003h,   003h,   '-'
-    463	      03 2D
-1   464	0390  BC BB C8 C9 CD CD	BA+  Type_3  db		     0bch,   0bbh,   0c8h,   0c9h,   0cdh,   0cdh,   0bah,   0bah,   0d
-    465	      BA 00
-1   466	0399  DA C0 BF D9 B3 B3	C4+  Type_4  db		     0dah,   0c0h,   0bfh,   0d9h,   0b3h,   0b3h,   0c4h,   0c4h,   0d
-    467	      C4 00
-1   468
-1   469	      =0000		     X_Num    =	0
-1   470	      =0001		     Y_Num    =	1
-1   471	      =0002		     W_Num    =	2
-1   472	      =0003		     H_Num    =	3
-1   473	      =0004		     Clr_Num  =	4
-1   474	      =0005		     Type_Num =	5
-1   475
-1   476	03A2			     PrintBox		     proc
-1   477
-1   478	03A2  50						     push ax				     ; push (1)
-1   479	03A3  53						     push bx				     ; push (2)
-1   480	03A4  51						     push cx				     ; push (3)
-1   481	03A5  52						     push dx				     ; push (4)
-1   482	03A6  56						     push si				     ; push (5)
-1   483	03A7  57						     push di				     ; push (6)
-1   484	03A8  57						     push di				     ; push (7)
+1   457	024D  2B F2										     sub si, dx
+1   458	024F  83 EE 01										     sub si, 1
+1   459
+1   460	0252  51										     push cx		     ; push +
+    461				     (3)
+1   462
+1   463	0253  50										     push ax		     ; push +
+    464				     (4)
+1   465	0254  33 C0										     xor  ax, ax     ; AX = 0
+1   466	0256  8A 04										     mov  al, [si]   ; AX = [SI] -  +
+    467				     '0'
+1   468	0258  2C 30										     sub  al, 48d
+1   469
+1   470	025A  52										     push dx		     ; push +
+    471				     (5)
+1   472	025B  8B CA										     mov  cx, dx	     ; AX = +
+    473				     AX	* 10^DX
+1   474	025D  BE 000A										     mov  si, 10d
+1   475	0260  E3 08										     jcxz __NoMul
+1   476
+1   477	0262  F7 E6										     __Mul:		     mul si
+1   478
+1   479	0264  49														    +
+    480				     dec cx
+1   481	0265  83 F9 00														    +
+    482				     cmp cx, 0
+1   483	0268  75 F8														    +
+    484				     jne __Mul
 1   485
-1   486	03A9  50						     push ax				     ; push (8)	<> push	STR +
-    487				     ADDR
-1   488
-1   489	03AA  8B F3						     mov si, bx				     ; SI = DATA ADDR( BX )
+1   486	026A											     __NoMul:
+1   487	026A  5A										     pop  dx		     ; pop  +
+    488				     (5)
+1   489	026B  8B C8										     mov  cx, ax
 1   490
-1   491								     ; SET TYPE	BOX
-1   492
-1   493	03AC  33 C0						     xor ax, ax				     ; DI = Type_0 + Type * 9
-1   494	03AE  8A 47 05						     mov al, bx[Type_Num]
-1   495	03B1  B9 0009						     mov cx, 9d
-1   496	03B4  F7 E1						     mul cx
-1   497	03B6  8B F8						     mov di, ax
-1   498	03B8  81 C7 0375r					     add di, offset Type_0
-1   499
-1   500	03BC  8A 67 04						     mov ah, bx[Clr_Num]	     ; AH = Color
-1   501
-1   502	03BF  8A 6F 02						     mov ch, bx[W_Num]		     ; CH = WIDTH
-1   503	03C2  8A 4F 03						     mov cl, bx[H_Num]		     ; CL = HEIGHT
+1   491	026D  58										     pop ax		     ; pop  +
+    492				     (4)
+1   493	026E  03 C1										     add ax, cx
+1   494	0270  59										     pop cx		     ; pop  +
+    495				     (3)
+1   496
+1   497	0271  42										     inc dx		     ; i++
+1   498
+1   499	0272  3B D1										     cmp dx, cx		     ; if( i+
+    500				     ==	CX )
+1   501	0274  75 D3										     jne __Next
+1   502
+1   503	0276  5E 5A						     pop si dx		     ; pop  (2)	(1)
 1   504
-1   505								     ; PRINT TOP HORIZONTAL LINE
-1   506
-1   507	03C5  8A 3C						     mov  bh, si[X_Num]		     ; BH = X
-1   508	03C7  8A 5C 01						     mov  bl, si[Y_Num]		     ; BL = Y
-1   509	03CA  8A 45 06						     mov  al, di[6]		     ; AL = horizontal sym
-1   510	03CD  8A 35						     mov  dh, di[0]		     ; DH = left  top  sym
-1   511	03CF  8A 55 02						     mov  dl, di[2]		     ; DL = right top  sym
-1   512	03D2  E8 FF26						     call PrintHrzLine
-1   513
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 10
+1   505	0278  C3						     ret
+1   506	0279							     endp
+1   507
+1   508				     ;------------------------------------------------
+    509				     include		 SCR_HNDL.ASM			 ; Scr handler
+1   510
+1   511				     ; SCREEN HANDLER
+1   512
+1   513				     ;------------------------------------------------
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 10
 main.asm
 
 
 
-1   514								     ; PRINT LEFT VERTICAL LINE
-1   515
-1   516	03D5  8A 3C						     mov  bh, si[X_Num]		     ; BH = X
-1   517	03D7  8A 5C 01						     mov  bl, si[Y_Num]		     ; BL = Y
-1   518	03DA  8A 45 04						     mov  al, di[4]		     ; AL = vertical  sym
-1   519	03DD  8A 35						     mov  dh, di[0]		     ; DH = left top  sym
-1   520	03DF  8A 55 01						     mov  dl, di[1]		     ; DL = left down sym
-1   521	03E2  E8 FF53						     call PrintVrtLine
-1   522
-1   523	03E5  53						     push bx				     ; push (9)	<> push	(X; +
-    524				     Y)
-1   525
-1   526								     ; PRINT DOWN HORIZONTAL LINE
+1   514				     ;	     FILL SCREEN BY SYM
+1   515				     ;	     FROM ( X; Y ) to (	X + WIDTH; Y + HEIGHT )
+1   516				     ;------------------------------------------------
+1   517				     ; ENTRY:	     AH	= COLOR	ATTR
+1   518				     ;			     AL	= SYM
+1   519				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
+1   520				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
+1   521				     ;			     CH	= WIDTH
+1   522				     ;			     CL	= HEIGHT
+1   523				     ; EXIT:	     NONE
+1   524				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
+1   525				     ; DESTROYS:     NONE
+1   526				     ;------------------------------------------------
 1   527
-1   528	03E6  8A 3C						     mov  bh, si[X_Num]		     ; BH = X
-1   529	03E8  8A 54 01						     mov  dl, si[Y_Num]		 ; Y +=	( HEIGHT - 1 )
-1   530	03EB  02 D1						     add  dl, cl
-1   531	03ED  80 EA 01						     sub  dl, 1
-1   532	03F0  8A DA						     mov  bl, dl			     ; BL = Y
-1   533	03F2  8A 45 07						     mov  al, di[7]		     ; AL = horizontal sym
-1   534	03F5  8A 75 01						     mov  dh, di[1]		     ; DH = left  down sym
-1   535	03F8  8A 55 03						     mov  dl, di[3]		     ; DL = right down sym
-1   536	03FB  E8 FEFD						     call PrintHrzLine
-1   537
-1   538								     ; PRINT RIGHT VERTICAL LINE
-1   539
-1   540	03FE  8A 14						     mov  dl, si[X_Num]		 ; X +=	( WIDTH	- 1 )
-1   541	0400  02 D5						     add  dl, ch
-1   542	0402  80 EA 01						     sub  dl, 1
-1   543	0405  8A FA						     mov  bh, dl			     ; BH = X
-1   544	0407  8A 5C 01						     mov  bl, si[Y_Num]		     ; BL = Y
-1   545	040A  8A 45 05						     mov  al, di[5]		     ; AL = vertical   sym
-1   546	040D  8A 75 02						     mov  dh, di[2]		     ; DH = right top  sym
-1   547	0410  8A 55 03						     mov  dl, di[3]		     ; DL = right down sym
-1   548	0413  E8 FF22						     call PrintVrtLine
+1   528	0279			     FillScreen		     proc
+1   529
+1   530	0279  53						     push bx			     ; push (1)
+1   531	027A  51						     push cx			     ; push (2)
+1   532	027B  52						     push dx			     ; push (3)
+1   533
+1   534	027C  50						     push ax			     ; push (4)
+1   535	027D  E8 0035						     call GetVideoPos
+1   536	0280  8B D8						     mov bx, ax
+1   537	0282  58						     pop ax			     ; pop  (4)
+1   538
+1   539	0283  8A F5						     __NextLine:		     mov dh, ch		     ; i =  +
+    540				     CH
+1   541
+1   542	0285  53											     push bx		    +
+    543				     ; push (5)
+1   544
+1   545	0286  26: 89 07											     __Next:		    +
+    546				     mov es:[bx], ax
+1   547	0289  83 C3 02														    +
+    548				     add bx, 2
 1   549
-1   550								     ; FILL BOX
-1   551
-1   552	0416  53						     push bx				     ; push (10)
-1   553	0417  51						     push cx				     ; push (11)
-1   554	0418  8A 3C						     mov  bh, si[X_Num]		     ; BH = X +	1
-1   555	041A  80 C7 01						     add  bh, 1
-1   556	041D  8A 5C 01						     mov  bl, si[Y_Num]		     ; BL = Y +	1
-1   557	0420  80 C3 01						     add  bl, 1
-1   558	0423  8A 45 08						     mov  al, di[8]		     ; AL = filling sym
-1   559	0426  80 ED 02						     sub  ch, 2				     ; WIDTH  -= 2
-1   560	0429  80 E9 02						     sub  cl, 2				     ; HEIGHT -= 2
-1   561	042C  E8 FE4D						     call FillScreen
-1   562	042F  59						     pop  cx				     ; pop  (11)
-1   563	0430  5B						     pop  bx				     ; pop  (10)
+1   550	028C  FE CE														    +
+    551				     dec dh		     ; i--
+1   552
+1   553	028E  80 FE 00														    +
+    554				     cmp dh, 0d		     ; if( dh == 0 )
+1   555	0291  74 02														    +
+    556				     je	__End
+1   557
+1   558	0293  EB F1														    +
+    559				     jmp __Next
+1   560	0295												     __End:
+1   561
+1   562	0295  5B											     pop bx		    +
+    563				     ; pop  (5)
 1   564
-1   565	0431  5B						     pop  bx				     ; pop  (9)	<> pop (X; Y)
-1   566	0432  58						     pop  ax				     ; pop  (8)	<> pop STR  +
-    567				     ADDR
-1   568
-1   569								     ; PRINT STR
+1   565	0296  81 C3 00A0										     add bx, 160d    ; BX +=+
+    566				     2*80
+1   567
+1   568	029A  FE C9											     dec cl		    +
+    569				     ; CL--
 1   570
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 11
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 11
 main.asm
 
 
 
-1   571	0433  8B C8						     mov  cx, ax			     ; CX = STR	ADDR
-1   572	0435  8B D8						     mov  bx, ax			     ; BX = STR	ADDR
-1   573	0437  E8 012D						     call StrLen			     ; AX = len	of str
-1   574	043A  F7 D8						     neg  ax				     ; AX = ( WIDTH - LEN ) +
-    575				     / 2
-1   576	043C  33 D2						     xor  dx, dx
-1   577	043E  8A 54 02						     mov  dl, si[W_Num]
-1   578	0441  03 C2						     add  ax, dx
-1   579	0443  33 D2						     xor  dx, dx
-1   580	0445  BF 0002						     mov  di, 2d
-1   581	0448  F7 F7						     div  di
-1   582	044A  8A 3C						     mov  bh, si[X_Num]		     ; X += AL
-1   583	044C  02 F8						     add  bh, al
-1   584	044E  33 C0						     xor  ax, ax			     ; AX = HEIGHT / 2
-1   585	0450  8A 44 03						     mov  al, si[H_Num]
-1   586	0453  33 D2						     xor  dx, dx
-1   587	0455  BF 0002						     mov  di, 2d
-1   588	0458  F7 F7						     div  di
-1   589	045A  8A 5C 01						     mov  bl, si[Y_Num]		     ; Y += AL
-1   590	045D  02 D8						     add  bl, al
-1   591	045F  8A 64 04						     mov  ah, si[Clr_Num]    ; AH = color
-1   592	0462  E8 FE70						     call PrintStr
-1   593
-1   594	0465  5F						     pop di				     ; pop  (7)
-1   595	0466  5F						     pop di				     ; pop  (6)
-1   596	0467  5E						     pop si				     ; pop  (5)
-1   597	0468  5A						     pop dx				     ; pop  (4)
-1   598	0469  59						     pop cx				     ; pop  (3)
-1   599	046A  5B						     pop bx				     ; pop  (2)
-1   600	046B  58						     pop ax				     ; pop  (1)
-1   601
-1   602	046C  C3						     ret
-1   603	046D							     endp
+1   571	029C  80 F9 00											     cmp cl, 0d	     ; if(  +
+    572				     CL	== 0 )
+1   573	029F  74 02											     je	__EndNextLine
+1   574
+1   575	02A1  EB E0											     jmp __NextLine
+1   576	02A3							     __EndNextLine:
+1   577
+1   578	02A3  5A						     pop dx			     ; pop  (3)
+1   579	02A4  59						     pop cx			     ; pop  (2)
+1   580	02A5  5B						     pop bx			     ; pop  (1)
+1   581
+1   582	02A6  C3						     ret
+1   583	02A7							     endp
+1   584
+1   585				     ;------------------------------------------------
+1   586				     ;	     CLEAR SCREEN BY SYM
+1   587				     ;------------------------------------------------
+1   588				     ; ENTRY:	     AH	= COLOR	ATTR
+1   589				     ;			     AL	= SYM
+1   590				     ; EXIT:	     NONE
+1   591				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
+1   592				     ; DESTROYS:     NONE
+1   593				     ;------------------------------------------------
+1   594
+1   595	02A7			     ClrScreen		     proc
+1   596
+1   597	02A7  53						     push bx			     ; push (1)
+1   598	02A8  51						     push cx			     ; push (2)
+1   599
+1   600	02A9  33 DB						     xor bx, bx			     ; X = 0; Y	= 0
+1   601	02AB  B5 50						     mov ch, 80d
+1   602	02AD  B1 19						     mov cl, 25d
+1   603	02AF  E8 FFC7						     call FillScreen
 1   604
-1   605				     ;------------------------------------------------
-1   606				     ;	     ANIMATE BOX
-1   607				     ;------------------------------------------------
-1   608				     ; ENTRY:	     AX	= STR  ADDR
-1   609				     ;			     BX	= DATA ADDR
-1   610				     ; EXIT:	     NONE
-1   611				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
-1   612				     ; DESTROYS:     NONE
+1   605	02B2  59						     pop cx			     ; pop  (2)
+1   606	02B3  5B						     pop bx			     ; pop  (1)
+1   607
+1   608	02B4  C3						     ret
+1   609	02B5							     endp
+1   610
+1   611				     ;------------------------------------------------
+1   612				     ;	     GET VIDEO POS FROM	(X; Y)
 1   613				     ;------------------------------------------------
-1   614
-1   615	046D  00		     EmptyStr db	     0
-1   616	046E  14*(00)		     BoxData  db     20	dup (0)
-1   617
-1   618	0482			     AnimBox		     proc
-1   619
-1   620	0482  53						     push bx		     ; push (1)
-1   621	0483  51						     push cx		     ; push (2)
-1   622	0484  52						     push dx		     ; push (3)
-1   623
-1   624	0485  8B CB						     mov  cx, bx
-1   625	0487  BB 046Er						     mov  bx, offset BoxData
-1   626	048A  BA 0014						     mov  dx, 20d
-1   627	048D  E8 0131						     call memcpy
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 12
+1   614				     ; ENTRY:	     BH	= X LEFT CORNER	COORDS [0; 79]
+1   615				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
+1   616				     ; EXIT:	     AX	= POS
+1   617				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
+1   618				     ; DESTROYS:     AX
+1   619				     ;------------------------------------------------
+1   620
+1   621	02B5			     GetVideoPos	     proc
+1   622
+1   623	02B5  D0 E7						     shl bh, 1		     ; bh /= 2
+1   624
+1   625	02B7  52						     push dx		     ; push (1)
+1   626
+1   627	02B8  B0 A0						     mov al, 160d    ; ax = 160	* Y + 2	* X
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 12
 main.asm
 
 
 
-1   628
-1   629	0490  33 C9						     xor  cx, cx	     ; i = 0
-1   630
-1   631	0492  8A 36 0470r					     mov  dh, BoxData[W_Num]
-1   632	0496  8A 16 0471r					     mov  dl, BoxData[H_Num]
-1   633
-1   634	049A  C6 06 0470r 03					     mov  BoxData[W_Num], 3d
-1   635	049F  C6 06 0471r 03					     mov  BoxData[H_Num], 3d
+1   628	02BA  F6 E3						     mul bl
+1   629	02BC  BA 0000						     mov dx, 0
+1   630	02BF  02 D7						     add dl, bh
+1   631	02C1  03 C2						     add ax, dx
+1   632
+1   633	02C3  5A						     pop dx		     ; pop  (1)
+1   634
+1   635	02C4  D0 EF						     shr bh, 1		     ; bh *= 2
 1   636
-1   637	04A4  50						     push ax		     ; push (4)
-1   638	04A5  B8 046Dr						     mov  ax, offset EmptyStr
+1   637	02C6  C3						     ret
+1   638	02C7							     endp
 1   639
-1   640	04A8  E8 FEF7						     __Next:		     call PrintBox
-1   641
-1   642	04AB  38 36 0470r									     cmp byte ptr BoxData[W_Num], dh+
-    643				     ; if( CURR_WIDTH == WIDTH )
-1   644	04AF  74 04										     je	__NoIncW
-1   645	04B1  FE 06 0470r									     inc BoxData[W_Num]
-1   646
-1   647	04B5											     __NoIncW:
-1   648
-1   649	04B5  38 16 0471r									     cmp byte ptr BoxData[H_Num], dl+
-    650				     ; if( CURR_HEIGHT == HEIGHT )
-1   651	04B9  74 04										     je	__NoIncH
-1   652	04BB  FE 06 0471r									     inc BoxData[H_Num]
+1   640				     ;------------------------------------------------
+1   641				     ;	     PRINT SYM IN (X; Y)
+1   642				     ;------------------------------------------------
+1   643				     ; ENTRY:	     AH	= SYM COLOR
+1   644				     ;			     AL	= SYM CHAR
+1   645				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
+1   646				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
+1   647				     ; EXIT:	     NONE
+1   648				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
+1   649				     ; DESTROYS:     NONE
+1   650				     ;------------------------------------------------
+1   651
+1   652	02C7			     PrintChar		     proc
 1   653
-1   654	04BF											     __NoIncH:
-1   655
-1   656	04BF  41										     inc cx			    +
-    657				     ; i++
+1   654	02C7  57						     push di		     ; push (1)
+1   655	02C8  50						     push ax		     ; push (2)
+1   656
+1   657	02C9  E8 FFE9						     call GetVideoPos
 1   658
-1   659	04C0  83 F9 11										     cmp cx, 17d
-1   660	04C3  74 0D										     je	__End
-1   661
-1   662	04C5  50										     push ax			    +
-    663				     ; push (5)
-1   664	04C6  51										     push cx			    +
-    665				     ; push (6)
-1   666	04C7  B4 86										     mov  ah, 86h
-1   667	04C9  B9 0001										     mov  cx, 1d
-1   668	04CC  CD 15										     int  15h
-1   669	04CE  59										     pop  cx			    +
-    670				     ; pop  (6)
-1   671	04CF  58										     pop  ax			    +
-    672				     ; pop  (5)
-1   673
-1   674	04D0  EB D6										     jmp __Next
-1   675
-1   676	04D2							     __End:
-1   677	04D2  58						     pop ax		     ; pop  (4)
-1   678
-1   679	04D3  88 36 0470r					     mov BoxData[W_Num], dh
-1   680	04D7  88 16 0471r					     mov BoxData[H_Num], dl
-1   681
-1   682	04DB  E8 FEC4						     call PrintBox
-1   683
-1   684	04DE  5A						     pop dx		     ; pop  (3)
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 13
+1   659	02CC  8B F8						     mov di, ax		     ; print( ax )
+1   660	02CE  58						     pop ax		     ; pop  (2)
+1   661	02CF  AB						     stosw
+1   662
+1   663	02D0  5F						     pop di		     ; pop  (1)
+1   664
+1   665	02D1  C3						     ret
+1   666	02D2							     endp
+1   667
+1   668				     ;------------------------------------------------
+1   669				     ;	     PRINT STR IN (X; Y)
+1   670				     ;------------------------------------------------
+1   671				     ; ENTRY:	     AH	= SYM COLOR
+1   672				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
+1   673				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
+1   674				     ;			     CX	= STR ADDR
+1   675				     ; EXIT:	     NONE
+1   676				     ; EXPECTS:	     ES	     = 0b800h (VIDEO SEGMENT)
+1   677				     ;			     END SYM = '\0' || '$' || '\r'
+1   678				     ; DESTROYS:     NONE
+1   679				     ;------------------------------------------------
+1   680
+1   681	02D2			     PrintStr		     proc
+1   682
+1   683	02D2  50						     push ax		     ; push (1)
+1   684	02D3  53						     push bx		     ; push (2)
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 13
 main.asm
 
 
 
-1   685	04DF  59						     pop cx		     ; pop  (2)
-1   686	04E0  5B						     pop bx		     ; pop  (1)
+1   685	02D4  52						     push dx		     ; push (3)
+1   686	02D5  56						     push si		     ; push (4)
 1   687
-1   688	04E1  C3						     ret
-1   689	04E2							     endp
-1   690
-1   691				     ;------------------------------------------------
-1   692				     ;	     INPUT STR
-1   693				     ;------------------------------------------------
-1   694				     ; ENTRY:	     BX	= OFFSET BUFFER
-1   695				     ;			     CX	= MAX BUFF SIZE
-1   696				     ; EXIT:	     AX	= STR LEN
-1   697				     ; DESTROYS:     AX
-1   698				     ;------------------------------------------------
-1   699
-1   700	04E2			     Input		     proc
+1   688	02D6  8B F1						     mov si, cx		     ; SI = StrAddr
+1   689
+1   690	02D8  8A 14						     __Next:		     mov dl, [si]    ; DX = CurrSym
+1   691
+1   692	02DA  80 FA 00										     cmp dl, 0d		     ; if(  +
+    693				     DL	== 0 )
+1   694	02DD  74 14										     je	__End
+1   695	02DF  80 FA 0D										     cmp dl, 13d	     ; if(  +
+    696				     DL	== '\r'	)
+1   697	02E2  74 0F										     je	__End
+1   698	02E4  80 FA 24										     cmp dl, '$'	     ; if(  +
+    699				     DL	== '$' )
+1   700	02E7  74 0A										     je	__End
 1   701
-1   702	04E2  53 52						     push bx dx
-1   703
-1   704	04E4  33 D2						     xor  dx, dx	     ; i = 0
-1   705
-1   706	04E6  B4 01						     __Next:		     mov ah, 01h			    +
-    707				     ; input char
-1   708	04E8  CD 21										     int 21h
-1   709
-1   710	04EA  3C 0D										     cmp al, 13d		    +
-    711				     ; if( al == '\r' )
-1   712	04EC  74 08										     je	__End
-1   713
-1   714	04EE  88 07										     mov [bx], al		    +
-    715				     ; Buff[i] = AL
+1   702	02E9  8A 04										     mov al, [si]    ; AL = CurrSym
+1   703	02EB  E8 FFD9										     call PrintChar
+1   704
+1   705	02EE  FE C7										     inc bh		     ; X++
+1   706	02F0  46										     inc si		     ;	    +
+    707				     CurrSymPos++
+1   708
+1   709	02F1  E2 E5										     loop __Next
+1   710	02F3							     __End:
+1   711
+1   712	02F3  5E						     pop si		     ; pop  (4)
+1   713	02F4  5A						     pop dx		     ; pop  (3)
+1   714	02F5  58						     pop ax		     ; pop  (2)
+1   715	02F6  5B						     pop bx		     ; pop  (1)
 1   716
-1   717	04F0  42										     inc dx			    +
-    718				     ; i++
-1   719	04F1  43										     inc bx
-1   720	04F2  3B D1										     cmp dx, cx			    +
-    721				     ; if( i ==	Buff_Size )
-1   722	04F4  75 F0										     jne __Next
-1   723
-1   724	04F6							     __End:
-1   725
-1   726	04F6  8B C2						     mov ax, dx
-1   727	04F8  5A 5B						     pop dx bx		     ; pop  (1)
-1   728
-1   729	04FA  C3						     ret
-1   730	04FB							     endp
-1   731
-1   732				     ;------------------------------------------------
-1   733				     ;	     COPY SCREEN BOX TO	BUFFER
-1   734				     ;	     USE WORD BUFFER WITH WIDTH	* HEIGHT SIZE
-1   735				     ;------------------------------------------------
-1   736				     ; ENTRY:	     AX	= BUFF ADDR
-1   737				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
-1   738				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
-1   739				     ;			     CH	= WIDTH
-1   740				     ;			     CL	= HEIGHT
-1   741				     ; EXIT:	     NONE
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 14
+1   717	02F7  C3						     ret
+1   718	02F8							     endp
+1   719
+1   720				     ;------------------------------------------------
+1   721				     ;	     PRINT HORIZONTAL LINE IN (X; Y)
+1   722				     ;------------------------------------------------
+1   723				     ; ENTRY:	     AH	= SYM COLOR
+1   724				     ;			     AL	= SYM CHAR
+1   725				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
+1   726				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
+1   727				     ;			     CH	= WIDTH
+1   728				     ;			     DH	= LEFT	SYM
+1   729				     ;			     DL	= RIGHT	SYM
+1   730				     ; EXIT:	     NONE
+1   731				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
+1   732				     ; DESTROYS:     NONE
+1   733				     ;------------------------------------------------
+1   734
+1   735	02F8			     PrintHrzLine    proc
+1   736
+1   737	02F8  80 FD 01						     cmp ch, 1			     ; if( ch <= 1 ) ret
+1   738	02FB  76 37						     jbe __End
+1   739
+1   740	02FD  53						     push bx			     ; push (1)
+1   741	02FE  52						     push dx			     ; push (2)
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 14
 main.asm
 
 
 
-1   742				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
-1   743				     ; DESTROYS:     NONE
-1   744				     ;------------------------------------------------
-1   745
-1   746	04FB			     BoxCpy		     proc
-1   747
-1   748	04FB  50 53 51 52 57 56					     push ax bx	cx dx di si
-1   749
-1   750	0501  8B F8						     mov  di, ax		     ; DI = BuffAddr
-1   751
-1   752	0503  E8 FDB2						     call GetVideoPos
-1   753	0506  8B F0						     mov  si, ax		     ; SI = ScreenPos
-1   754
-1   755	0508  D0 E5						     shl ch, 1			     ; WIDTH *=	2
-1   756
-1   757	050A  33 D2						     xor dx, dx			     ; set DX =	N for memcpy
-1   758	050C  8A D5						     mov dl, ch
-1   759
-1   760	050E  8B DF						     mov bx, di			     ; BX = BuffAddr
-1   761
-1   762	0510  51						     __Next:			     push cx
-1   763	0511  8B CE											     mov  cx, si
-1   764	0513  E8 00AB											     call memcpy
-1   765	0516  59											     pop  cx
+1   742
+1   743
+1   744	02FF  50						     push ax			     ; push (3)
+1   745	0300  8A C6						     mov al, dh			     ; printf( "%c", LeftSym )
+1   746	0302  E8 FFC2						     call PrintChar
+1   747	0305  58						     pop ax			     ; pop  (3)
+1   748
+1   749	0306  50						     push ax			     ; push (4)
+1   750	0307  53						     push bx			     ; push (5)
+1   751	0308  02 FD						     add bh, ch			     ; X += ( WIDTH - 1	)
+1   752	030A  80 EF 01						     sub bh, 1
+1   753	030D  8A C2						     mov al, dl			     ; printf( "%c", RightSym )
+1   754	030F  E8 FFB5						     call PrintChar
+1   755	0312  5B						     pop bx			     ; pop  (5)
+1   756	0313  58						     pop ax			     ; pop  (4)
+1   757
+1   758	0314  53						     push bx			     ; push (6)
+1   759	0315  51						     push cx			     ; push (7)
+1   760
+1   761	0316  80 C7 01						     add bh, 1			     ; X += 1
+1   762	0319  80 ED 02						     sub ch, 2			     ; WIDTH -=	2
+1   763
+1   764	031C  80 FD 00						     cmp ch, 0			     ; if( ch == 0 )
+1   765	031F  74 0F						     je	     __EndPrinting
 1   766
-1   767	0517  FE C9											     dec cl		    +
-    768				     ; HEIGHT--
-1   769
-1   770	0519  80 F9 00											     cmp cl, 0		    +
-    771				     ; if( HEIGHT == 0 )
-1   772	051C  74 08											     je	__End
+1   767	0321  33 D2						     xor dx, dx			     ; i = 0
+1   768
+1   769	0323  E8 FFA1						     __Next:		     call PrintChar
+1   770
+1   771	0326  FE C7										     inc bh
+1   772	0328  FE C6										     inc dh
 1   773
-1   774	051E  81 C6 00A0										     add si, 160d	    +
-    775				     ; ScreenPos += 2*80
-1   776	0522  03 DA											     add bx, dx		    +
-    777				     ; BuffAddr	 += 2*WIDTH
+1   774	032A  3A F5										     cmp dh, ch
+1   775	032C  74 02										     je	 __EndPrinting
+1   776
+1   777	032E  EB F3										     jmp __Next
 1   778
-1   779	0524  EB EA											     jmp __Next
-1   780	0526							     __End:
-1   781
-1   782	0526  5E 5F 5A 59 5B 58					     pop si di dx cx bx	ax
+1   779	0330							     __EndPrinting:
+1   780
+1   781	0330  59						     pop cx			     ; pop  (7)
+1   782	0331  5B						     pop bx			     ; pop  (6)
 1   783
-1   784	052C  C3						     ret
-1   785	052D							     endp
-1   786
-1   787				     ;------------------------------------------------
-1   788				     ;	     PASTE BUFFER BOX TO SCREEN
-1   789				     ;	     USE WORD BUFFER WITH WIDTH	* HEIGHT SIZE
-1   790				     ;------------------------------------------------
-1   791				     ; ENTRY:	     AX	= BUFF ADDR
-1   792				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
-1   793				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
-1   794				     ;			     CH	= WIDTH
-1   795				     ;			     CL	= HEIGHT
-1   796				     ; EXIT:	     NONE
-1   797				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
-1   798				     ; DESTROYS:     NONE
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 15
+1   784
+1   785	0332  5A						     pop dx			     ; pop  (2)
+1   786	0333  5B						     pop bx			     ; pop  (1)
+1   787
+1   788	0334							     __End:
+1   789	0334  C3						     ret
+1   790	0335							     endp
+1   791
+1   792				     ;------------------------------------------------
+1   793				     ;	     PRINT VERTICAL LINE IN (X;	Y)
+1   794				     ;------------------------------------------------
+1   795				     ; ENTRY:	     AH	= SYM COLOR
+1   796				     ;			     AL	= SYM CHAR
+1   797				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
+1   798				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 15
 main.asm
 
 
 
-1   799				     ;------------------------------------------------
-1   800
-1   801	052D			     BoxPaste		     proc
-1   802
-1   803	052D  50 53 51 52 57 56	1E+				     push ax bx	cx dx di si ds es
-    804	      06
-1   805
-1   806	0535  8B F8						     mov  di, ax		     ; DI = BuffAddr
-1   807
-1   808	0537  E8 FD7E						     call GetVideoPos
-1   809	053A  8B F0						     mov  si, ax		     ; SI = ScreenPos
-1   810
-1   811	053C  D0 E5						     shl ch, 1			     ; WIDTH *=	2
-1   812
-1   813	053E  33 D2						     xor dx, dx			     ; set DX =	N for memcpy
-1   814	0540  8A D5						     mov dl, ch
+1   799				     ;			     CL	= HEIGHT
+1   800				     ;			     DH	= TOP  SYM
+1   801				     ;			     DL	= DOWN SYM
+1   802				     ; EXIT:	     NONE
+1   803				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
+1   804				     ; DESTROYS:     NONE
+1   805				     ;------------------------------------------------
+1   806
+1   807	0335			     PrintVrtLine    proc
+1   808
+1   809	0335  80 F9 01						     cmp cl, 1			     ; if( cl <= 1 ) ret
+1   810	0338  76 37						     jbe __End
+1   811
+1   812	033A  53						     push bx			     ; push (1)
+1   813	033B  52						     push dx			     ; push (2)
+1   814
 1   815
-1   816	0542  8B DE						     mov bx, si			     ; DESTINATION = ScreenPos
-1   817
-1   818	0544  06 1E						     push es ds			     ; swap( DS, ES )
-1   819	0546  07 1F						     pop  es ds
+1   816	033C  50						     push ax			     ; push (3)
+1   817	033D  8A C6						     mov al, dh			     ; printf( "%c", TopSym )
+1   818	033F  E8 FF85						     call PrintChar
+1   819	0342  58						     pop ax			     ; pop  (3)
 1   820
-1   821	0548  51						     __Next:			     push cx
-1   822	0549  8B CF											     mov  cx, di	    +
-    823				     ; SOURCE =	BuffAddr
-1   824	054B  E8 0073											     call memcpy
-1   825	054E  59											     pop  cx
-1   826
-1   827	054F  FE C9											     dec cl		    +
-    828				     ; HEIGHT--
+1   821	0343  50						     push ax			     ; push (4)
+1   822	0344  53						     push bx			     ; push (5)
+1   823	0345  02 D9						     add bl, cl			     ; Y += ( HEIGHT - 1 )
+1   824	0347  80 EB 01						     sub bl, 1
+1   825	034A  8A C2						     mov al, dl			     ; printf( "%c", DownSym )
+1   826	034C  E8 FF78						     call PrintChar
+1   827	034F  5B						     pop bx			     ; pop  (5)
+1   828	0350  58						     pop ax			     ; pop  (4)
 1   829
-1   830	0551  80 F9 00											     cmp cl, 0		    +
-    831				     ; if( HEIGHT == 0 )
-1   832	0554  74 08											     je	__End
-1   833
-1   834
-1   835	0556  03 FA											     add di, dx		    +
-    836				     ; BuffAddr	 += 2*WIDTH
-1   837	0558  81 C3 00A0										     add bx, 160d	    +
-    838				     ; ScreenPos += 2*80
-1   839
-1   840	055C  EB EA											     jmp __Next
-1   841	055E							     __End:
+1   830	0351  53						     push bx			     ; push (6)
+1   831	0352  51						     push cx			     ; push (7)
+1   832
+1   833	0353  80 C3 01						     add bl, 1			     ; Y += 1
+1   834	0356  80 E9 02						     sub cl, 2			     ; HEIGHT -= 2
+1   835
+1   836	0359  80 F9 00						     cmp cl, 0			     ; if( cl == 0 )
+1   837	035C  74 0F						     je	     __EndPrinting
+1   838
+1   839	035E  33 D2						     xor dx, dx			     ; i = 0
+1   840
+1   841	0360  E8 FF64						     __Next:		     call PrintChar
 1   842
-1   843	055E  07 1F 5E 5F 5A 59	5B+				     pop es ds si di dx	cx bx ax
-    844	      58
+1   843	0363  FE C3										     inc bl
+1   844	0365  FE C2										     inc dl
 1   845
-1   846	0566  C3						     ret
-1   847	0567							     endp
+1   846	0367  3A D1										     cmp dl, cl
+1   847	0369  74 02										     je	 __EndPrinting
 1   848
-1   849				     ;------------------------------------------------
+1   849	036B  EB F3										     jmp __Next
 1   850
-    851				     include		 STR_HNDL.ASM			 ; Str handler
+1   851	036D							     __EndPrinting:
 1   852
-1   853				     ;------------------------------------------------
-1   854				     ;	     GET STR LEN
-1   855				     ;------------------------------------------------
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 16
+1   853	036D  59						     pop cx			     ; pop  (7)
+1   854	036E  5B						     pop bx			     ; pop  (6)
+1   855
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 16
 main.asm
 
 
 
-1   856				     ; ENTRY:	     BX	= STR ADDR
-1   857				     ; EXIT:	     AX	= LEN
-1   858				     ; EXPECTS:	 END SYM = '\0'
-1   859				     ; DESTROYS: AX
-1   860				     ;------------------------------------------------
-1   861
-1   862	0567			     StrLen	     proc
+1   856
+1   857	036F  5A						     pop dx			     ; pop  (2)
+1   858	0370  5B						     pop bx			     ; pop  (1)
+1   859
+1   860	0371							     __End:
+1   861	0371  C3						     ret
+1   862	0372							     endp
 1   863
-1   864	0567  33 C0				     xor ax, ax	     ; i = 0
-1   865
-1   866	0569  51 56						     push cx si		     ; push (1)	(2)
-1   867
-1   868	056B  8B F3				     __Next:		     mov  si, bx     ; SI = BX + i
-1   869	056D  03 F0										 add  si, ax
-1   870
-1   871	056F  40										     inc  ax		     ; i++
-1   872	0570  8B 0C										     mov  cx, [si]   ; CX = current +
-    873				     symbol
-1   874
-1   875	0572  80 FD 00										     cmp  ch, 0d     ; if( ch ==    +
-    876				     '\0' )
-1   877	0575  74 02										     je	__End
-1   878
-1   879	0577  EB F2										     jmp __Next
-1   880
-1   881	0579							     __End:
-1   882	0579  5E 59						     pop si cx		     ; pop  (2)	(1)
-1   883
-1   884	057B  C3				     ret
-1   885	057C					     endp
-1   886
-1   887				     ;------------------------------------------------
-1   888				     ;	     GET ADDR OF CHR IN	ARR
-1   889				     ;	     RET NULL IF NOT FOUND
-1   890				     ;------------------------------------------------
-1   891				     ; ENTRY:	     BX	= ARR ADDR
-1   892				     ;			     CL	= CHR
-1   893				     ;			     DX	= LEN OF THE COMPARED PART (IN BYTES)
-1   894				     ; EXIT:	     AX	= ADDR OF CHR
-1   895				     ; DESTROYS: AX
-1   896				     ;------------------------------------------------
+1   864				     ;------------------------------------------------
+1   865				     ;	     PRINT BOX
+1   866				     ;------------------------------------------------
+1   867				     ; ENTRY:	     AX	= STR  ADDR
+1   868				     ;			     BX	= DATA ADDR
+1   869				     ; EXIT:	     NONE
+1   870				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
+1   871				     ; DESTROYS:     NONE
+1   872				     ;------------------------------------------------
+1   873
+1   874				     ; User's type
+1   875	0372  09*(00)		     Type_0  db		     9 dup (0)
+1   876
+1   877				     ; Template	types
+1   878				     ;				     0		     1		     2		     3		    +
+    879				     4		     5		     6		     7		     9
+1   880				     ;				     lt		     ld		     rt		     rd		    +
+    881				     lv		     rv		     th		     dh		     fill
+1   882	037B  C9 C8 BB BC BA BA	CD+  Type_1  db		     0c9h,   0c8h,   0bbh,   0bch,   0bah,   0bah,   0cdh,   0cdh,   0d
+    883	      CD 00
+1   884	0384  03 03 03 03 03 03	03+  Type_2  db		     003h,   003h,   003h,   003h,   003h,   003h,   003h,   003h,   '-'
+    885	      03 2D
+1   886	038D  BC BB C8 C9 CD CD	BA+  Type_3  db		     0bch,   0bbh,   0c8h,   0c9h,   0cdh,   0cdh,   0bah,   0bah,   0d
+    887	      BA 00
+1   888	0396  DA C0 BF D9 B3 B3	C4+  Type_4  db		     0dah,   0c0h,   0bfh,   0d9h,   0b3h,   0b3h,   0c4h,   0c4h,   0d
+    889	      C4 00
+1   890
+1   891	      =0000		     X_Num    =	0
+1   892	      =0001		     Y_Num    =	1
+1   893	      =0002		     W_Num    =	2
+1   894	      =0003		     H_Num    =	3
+1   895	      =0004		     Clr_Num  =	4
+1   896	      =0005		     Type_Num =	5
 1   897
-1   898	057C			     MemChr		     proc
+1   898	039F			     PrintBox		     proc
 1   899
-1   900	057C  56						     push si		     ; push (1)
-1   901
-1   902	057D  33 C0						     xor ax, ax		     ; AX = NULL
-1   903	057F  33 F6						     xor si, si		     ; i  = 0
-1   904
-1   905	0581  83 FA 00						     cmp dx, 0d		     ; if( len == 0 )
-1   906	0584  74 0F						     je	__End
+1   900	039F  50						     push ax				     ; push (1)
+1   901	03A0  53						     push bx				     ; push (2)
+1   902	03A1  51						     push cx				     ; push (3)
+1   903	03A2  52						     push dx				     ; push (4)
+1   904	03A3  56						     push si				     ; push (5)
+1   905	03A4  57						     push di				     ; push (6)
+1   906	03A5  57						     push di				     ; push (7)
 1   907
-1   908	0586  38 08						     __Next:		     cmp bx[si], cl	     ; if( Addr[i]  +
-    909				     ==	CHR )
-1   910	0588  74 07										     je	__Found
-1   911
-1   912	058A  46										     inc si
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 17
+1   908	03A6  50						     push ax				     ; push (8)	<> push	STR +
+    909				     ADDR
+1   910
+1   911	03A7  8B F3						     mov si, bx				     ; SI = DATA ADDR( BX )
+1   912
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 17
 main.asm
 
 
 
-1   913
-1   914	058B  3B F2										     cmp si, dx
-1   915	058D  74 06										     je	__End
-1   916
-1   917	058F  EB F5										     jmp __Next
-1   918
-1   919	0591  8B C3						     __Found:		     mov ax, bx			     ; AX = +
-    920				     ArrAddr + i
-1   921	0593  03 C6										     add ax, si
-1   922
-1   923	0595							     __End:
-1   924	0595  5E						     pop si		     ; pop  (1)
-1   925
-1   926	0596  C3						     ret
-1   927	0597							     endp
+1   913								     ; SET TYPE	BOX
+1   914
+1   915	03A9  33 C0						     xor ax, ax				     ; DI = Type_0 + Type * 9
+1   916	03AB  8A 47 05						     mov al, bx[Type_Num]
+1   917	03AE  B9 0009						     mov cx, 9d
+1   918	03B1  F7 E1						     mul cx
+1   919	03B3  8B F8						     mov di, ax
+1   920	03B5  81 C7 0372r					     add di, offset Type_0
+1   921
+1   922	03B9  8A 67 04						     mov ah, bx[Clr_Num]	     ; AH = Color
+1   923
+1   924	03BC  8A 6F 02						     mov ch, bx[W_Num]		     ; CH = WIDTH
+1   925	03BF  8A 4F 03						     mov cl, bx[H_Num]		     ; CL = HEIGHT
+1   926
+1   927								     ; PRINT TOP HORIZONTAL LINE
 1   928
-1   929				     ;------------------------------------------------
-1   930				     ;	     GET ADDR OF CHR IN	STR
-1   931				     ;	     RET NULL IF NOT FOUND
-1   932				     ;------------------------------------------------
-1   933				     ; ENTRY:	     BX	= ARR ADDR
-1   934				     ;			     CL	= CHR
-1   935				     ; EXIT:	     AX	= ADDR OF CHR
-1   936				     ; EXPECTS:	 END SYM = '\0'
-1   937				     ; DESTROYS: AX
-1   938				     ;------------------------------------------------
-1   939
-1   940	0597			     StrChr		     proc
-1   941
-1   942	0597  56						     push si		     ; push (1)
-1   943
-1   944	0598  33 C0						     xor ax, ax		     ; AX = NULL
-1   945	059A  33 F6						     xor si, si		     ; i  = 0
-1   946
-1   947	059C  38 08						     __Next:		     cmp byte ptr bx[si], cl	     ; if(  +
-    948				     Addr[i] ==	CHR )
-1   949	059E  74 08										     je	__Found
-1   950	05A0  80 38 00										     cmp byte ptr bx[si], 0d	    +
-    951				     ; if( Addr[i] == '\0' )
-1   952	05A3  74 07										     je	__End
-1   953
-1   954	05A5  46										     inc si
-1   955
-1   956	05A6  EB F4										     jmp __Next
-1   957
-1   958	05A8  8B C3						     __Found:		     mov ax, bx				    +
-    959				     ; AX = ArrAddr + i
-1   960	05AA  03 C6										     add ax, si
+1   929	03C2  8A 3C						     mov  bh, si[X_Num]		     ; BH = X
+1   930	03C4  8A 5C 01						     mov  bl, si[Y_Num]		     ; BL = Y
+1   931	03C7  8A 45 06						     mov  al, di[6]		     ; AL = horizontal sym
+1   932	03CA  8A 35						     mov  dh, di[0]		     ; DH = left  top  sym
+1   933	03CC  8A 55 02						     mov  dl, di[2]		     ; DL = right top  sym
+1   934	03CF  E8 FF26						     call PrintHrzLine
+1   935
+1   936								     ; PRINT LEFT VERTICAL LINE
+1   937
+1   938	03D2  8A 3C						     mov  bh, si[X_Num]		     ; BH = X
+1   939	03D4  8A 5C 01						     mov  bl, si[Y_Num]		     ; BL = Y
+1   940	03D7  8A 45 04						     mov  al, di[4]		     ; AL = vertical  sym
+1   941	03DA  8A 35						     mov  dh, di[0]		     ; DH = left top  sym
+1   942	03DC  8A 55 01						     mov  dl, di[1]		     ; DL = left down sym
+1   943	03DF  E8 FF53						     call PrintVrtLine
+1   944
+1   945	03E2  53						     push bx				     ; push (9)	<> push	(X; +
+    946				     Y)
+1   947
+1   948								     ; PRINT DOWN HORIZONTAL LINE
+1   949
+1   950	03E3  8A 3C						     mov  bh, si[X_Num]		     ; BH = X
+1   951	03E5  8A 54 01						     mov  dl, si[Y_Num]		 ; Y +=	( HEIGHT - 1 )
+1   952	03E8  02 D1						     add  dl, cl
+1   953	03EA  80 EA 01						     sub  dl, 1
+1   954	03ED  8A DA						     mov  bl, dl			     ; BL = Y
+1   955	03EF  8A 45 07						     mov  al, di[7]		     ; AL = horizontal sym
+1   956	03F2  8A 75 01						     mov  dh, di[1]		     ; DH = left  down sym
+1   957	03F5  8A 55 03						     mov  dl, di[3]		     ; DL = right down sym
+1   958	03F8  E8 FEFD						     call PrintHrzLine
+1   959
+1   960								     ; PRINT RIGHT VERTICAL LINE
 1   961
-1   962	05AC							     __End:
-1   963	05AC  5E						     pop si		     ; pop  (1)
-1   964
-1   965	05AD  C3						     ret
-1   966	05AE							     endp
-1   967
-1   968				     ;------------------------------------------------
-1   969				     ;	     THE MEMSET	FUNCTION FILLS
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 18
+1   962	03FB  8A 14						     mov  dl, si[X_Num]		 ; X +=	( WIDTH	- 1 )
+1   963	03FD  02 D5						     add  dl, ch
+1   964	03FF  80 EA 01						     sub  dl, 1
+1   965	0402  8A FA						     mov  bh, dl			     ; BH = X
+1   966	0404  8A 5C 01						     mov  bl, si[Y_Num]		     ; BL = Y
+1   967	0407  8A 45 05						     mov  al, di[5]		     ; AL = vertical   sym
+1   968	040A  8A 75 02						     mov  dh, di[2]		     ; DH = right top  sym
+1   969	040D  8A 55 03						     mov  dl, di[3]		     ; DL = right down sym
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 18
 main.asm
 
 
 
-1   970				     ;	     THE FIRST N BYTES OF THE MEMORY
-1   971				     ;	     LOCATION POINTED TO BY THE
-1   972				     ;	     DESTINATION ARGUMENT WITH THE
-1   973				     ;	     CHARACTER SPECIFIED BY THE	CHR ARGUMENT
-1   974				     ;------------------------------------------------
-1   975				     ; ENTRY:	     BX	= DESTINATION
-1   976				     ;			     CL	= CHR
-1   977				     ;			     DX	= N
-1   978				     ; EXIT:	     NONE
-1   979				     ; DESTROYS: NONE
-1   980				     ;------------------------------------------------
-1   981
-1   982	05AE			     MemSet		     proc
-1   983
-1   984	05AE  56						     push si		     ; push (1)
-1   985
-1   986	05AF  33 F6						     xor si, si		     ; i = 0
-1   987
-1   988	05B1  83 FA 00						     cmp dx, 0d		     ; if( N ==	0 )
-1   989	05B4  74 09						     je	__End
+1   970	0410  E8 FF22						     call PrintVrtLine
+1   971
+1   972								     ; FILL BOX
+1   973
+1   974	0413  53						     push bx				     ; push (10)
+1   975	0414  51						     push cx				     ; push (11)
+1   976	0415  8A 3C						     mov  bh, si[X_Num]		     ; BH = X +	1
+1   977	0417  80 C7 01						     add  bh, 1
+1   978	041A  8A 5C 01						     mov  bl, si[Y_Num]		     ; BL = Y +	1
+1   979	041D  80 C3 01						     add  bl, 1
+1   980	0420  8A 45 08						     mov  al, di[8]		     ; AL = filling sym
+1   981	0423  80 ED 02						     sub  ch, 2				     ; WIDTH  -= 2
+1   982	0426  80 E9 02						     sub  cl, 2				     ; HEIGHT -= 2
+1   983	0429  E8 FE4D						     call FillScreen
+1   984	042C  59						     pop  cx				     ; pop  (11)
+1   985	042D  5B						     pop  bx				     ; pop  (10)
+1   986
+1   987	042E  5B						     pop  bx				     ; pop  (9)	<> pop (X; Y)
+1   988	042F  58						     pop  ax				     ; pop  (8)	<> pop STR  +
+    989				     ADDR
 1   990
-1   991	05B6  88 08						     __Next:		     mov byte ptr bx[si], cl	     ; BX[i]+
-    992				     = CHR
-1   993
-1   994	05B8  46										     inc si			    +
-    995				     ; i++
-1   996
-1   997	05B9  3B F2										     cmp si, dx			    +
-    998				     ; if( i ==	N )
-1   999	05BB  74 02										     je	__End
-1  1000
-1  1001	05BD  EB F7										     jmp __Next
-1  1002	05BF							     __End:
-1  1003	05BF  5E						     pop     si			     ; pop  (1)
-1  1004
-1  1005	05C0  C3						     ret
-1  1006	05C1							     endp
-1  1007
-1  1008				     ;------------------------------------------------
-1  1009				     ;	     THE MEMCPY	FUNCTION COPIES	N BYTES
-1  1010				     ;	     FROM THE ARRAY (SOURCE) TO	THE ARRAY
-1  1011				     ;	     (DESTINATION). IF THE ARRAYS OVERLAP,
-1  1012				     ;	     THE RESULT	OF THE COPY WILL BE UNDEFINED
-1  1013				     ;------------------------------------------------
-1  1014				     ; ENTRY:	     BX	= DESTINATION
-1  1015				     ;			     CX	= SOURCE
-1  1016				     ;			     DX	= N
-1  1017				     ; EXPECTS:	     DS	= DESTINATION SEG
-1  1018				     ;			     ES	= SOURCE      SEG
-1  1019				     ; EXIT:	     NONE
-1  1020				     ; DESTROYS: NONE
-1  1021				     ;------------------------------------------------
-1  1022
-1  1023	05C1			     MemCpy		     proc
-1  1024
-1  1025	05C1  56 55						     push si bp		     ; push (1)	(2)
+1   991								     ; PRINT STR
+1   992
+1   993	0430  8B C8						     mov  cx, ax			     ; CX = STR	ADDR
+1   994	0432  8B D8						     mov  bx, ax			     ; BX = STR	ADDR
+1   995	0434  E8 FD37						     call StrLen			     ; AX = len	of str
+1   996	0437  F7 D8						     neg  ax				     ; AX = ( WIDTH - LEN ) +
+    997				     / 2
+1   998	0439  33 D2						     xor  dx, dx
+1   999	043B  8A 54 02						     mov  dl, si[W_Num]
+1  1000	043E  03 C2						     add  ax, dx
+1  1001	0440  33 D2						     xor  dx, dx
+1  1002	0442  BF 0002						     mov  di, 2d
+1  1003	0445  F7 F7						     div  di
+1  1004	0447  8A 3C						     mov  bh, si[X_Num]		     ; X += AL
+1  1005	0449  02 F8						     add  bh, al
+1  1006	044B  33 C0						     xor  ax, ax			     ; AX = HEIGHT / 2
+1  1007	044D  8A 44 03						     mov  al, si[H_Num]
+1  1008	0450  33 D2						     xor  dx, dx
+1  1009	0452  BF 0002						     mov  di, 2d
+1  1010	0455  F7 F7						     div  di
+1  1011	0457  8A 5C 01						     mov  bl, si[Y_Num]		     ; Y += AL
+1  1012	045A  02 D8						     add  bl, al
+1  1013	045C  8A 64 04						     mov  ah, si[Clr_Num]    ; AH = color
+1  1014	045F  E8 FE70						     call PrintStr
+1  1015
+1  1016	0462  5F						     pop di				     ; pop  (7)
+1  1017	0463  5F						     pop di				     ; pop  (6)
+1  1018	0464  5E						     pop si				     ; pop  (5)
+1  1019	0465  5A						     pop dx				     ; pop  (4)
+1  1020	0466  59						     pop cx				     ; pop  (3)
+1  1021	0467  5B						     pop bx				     ; pop  (2)
+1  1022	0468  58						     pop ax				     ; pop  (1)
+1  1023
+1  1024	0469  C3						     ret
+1  1025	046A							     endp
 1  1026
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 19
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 19
 main.asm
 
 
 
-1  1027	05C3  8B E9						     mov bp, cx		     ; BP = CX
-1  1028
-1  1029	05C5  33 F6						     xor si, si		     ; i = 0
-1  1030
-1  1031	05C7  83 FA 00						     cmp dx, 0		     ; if( N ==	0 )
-1  1032	05CA  74 0E						     je	__End
-1  1033
-1  1034	05CC  52						     __Next:		     push dx				    +
-   1035				     ; push (3)
-1  1036	05CD  26: 8A 12										     mov  dl, es:bp[si]
-1  1037	05D0  88 10										     mov  byte ptr ds:bx[si], dl    +
-   1038				     ; DS:BX[i]	= ES:CX[i]
-1  1039	05D2  5A										     pop  dx			    +
-   1040				     ; pop  (3)
+1  1027				     ;------------------------------------------------
+1  1028				     ;	     ANIMATE BOX
+1  1029				     ;------------------------------------------------
+1  1030				     ; ENTRY:	     AX	= STR  ADDR
+1  1031				     ;			     BX	= DATA ADDR
+1  1032				     ; EXIT:	     NONE
+1  1033				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
+1  1034				     ; DESTROYS:     NONE
+1  1035				     ;------------------------------------------------
+1  1036
+1  1037	046A  00		     EmptyStr db	     0
+1  1038	046B  14*(00)		     BoxData  db     20	dup (0)
+1  1039
+1  1040	047F			     AnimBox		     proc
 1  1041
-1  1042	05D3  46										     inc si			    +
-   1043				     ; i++
-1  1044
-1  1045	05D4  3B F2										     cmp si, dx			    +
-   1046				     ; if( N ==	i )
-1  1047	05D6  74 02										     je	__End
-1  1048
-1  1049	05D8  EB F2										     jmp __Next
+1  1042	047F  53						     push bx		     ; push (1)
+1  1043	0480  51						     push cx		     ; push (2)
+1  1044	0481  52						     push dx		     ; push (3)
+1  1045
+1  1046	0482  8B CB						     mov  cx, bx
+1  1047	0484  BB 046Br						     mov  bx, offset BoxData
+1  1048	0487  BA 0014						     mov  dx, 20d
+1  1049	048A  E8 FD3B						     call memcpy
 1  1050
-1  1051	05DA							     __End:
-1  1052	05DA  5D 5E						     pop bp si		     ; pop  (2)	(1)
-1  1053
-1  1054	05DC  C3						     ret
-1  1055	05DD							     endp
-1  1056
-1  1057				     ;------------------------------------------------
-1  1058				     ;	     THE STRCPY	FUNCTION COPIES	THE DATA FROM
-1  1059				     ;	     THE SOURCE	ARGUMENT TO THE	DESTINATION
-1  1060				     ;	     UNTIL THE END-OF-LINE( NULL ) CHARACTER
-1  1061				     ;	     IS	ENCOUNTERED.
-1  1062				     ;	     COPYING IS	DONE ALONG WITH	THE
-1  1063				     ;	     END-OF-LINE CHARACTER
-1  1064				     ;------------------------------------------------
-1  1065				     ; ENTRY:	     BX	= DESTINATION
-1  1066				     ;			     CX	= SOURCE
-1  1067				     ; EXIT:	     NONE
-1  1068				     ; DESTROYS: NONE
-1  1069				     ;------------------------------------------------
+1  1051	048D  33 C9						     xor  cx, cx	     ; i = 0
+1  1052
+1  1053	048F  8A 36 046Dr					     mov  dh, BoxData[W_Num]
+1  1054	0493  8A 16 046Er					     mov  dl, BoxData[H_Num]
+1  1055
+1  1056	0497  C6 06 046Dr 03					     mov  BoxData[W_Num], 3d
+1  1057	049C  C6 06 046Er 03					     mov  BoxData[H_Num], 3d
+1  1058
+1  1059	04A1  50						     push ax		     ; push (4)
+1  1060	04A2  B8 046Ar						     mov  ax, offset EmptyStr
+1  1061
+1  1062	04A5  E8 FEF7						     __Next:		     call PrintBox
+1  1063
+1  1064	04A8  38 36 046Dr									     cmp byte ptr BoxData[W_Num], dh+
+   1065				     ; if( CURR_WIDTH == WIDTH )
+1  1066	04AC  74 04										     je	__NoIncW
+1  1067	04AE  FE 06 046Dr									     inc BoxData[W_Num]
+1  1068
+1  1069	04B2											     __NoIncW:
 1  1070
-1  1071	05DD			     StrCpy		     proc
-1  1072
-1  1073	05DD  52 56 55						     push dx si	bp   ; push (1)	(2) (3)
-1  1074
-1  1075	05E0  8B E9						     mov bp, cx		     ; BP = CX
-1  1076
-1  1077	05E2  33 F6						     xor si, si		     ; i = 0
-1  1078
-1  1079	05E4  8A 12						     __Next:		     mov dl, bp[si]
-1  1080	05E6  88 10										     mov byte ptr bx[si], dl	    +
-   1081				     ; BX[i] = CX[i]
-1  1082
-1  1083	05E8  80 3A 00										     cmp byte ptr bp[si], 0d	    +
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 20
+1  1071	04B2  38 16 046Er									     cmp byte ptr BoxData[H_Num], dl+
+   1072				     ; if( CURR_HEIGHT == HEIGHT )
+1  1073	04B6  74 04										     je	__NoIncH
+1  1074	04B8  FE 06 046Er									     inc BoxData[H_Num]
+1  1075
+1  1076	04BC											     __NoIncH:
+1  1077
+1  1078	04BC  41										     inc cx			    +
+   1079				     ; i++
+1  1080
+1  1081	04BD  83 F9 11										     cmp cx, 17d
+1  1082	04C0  74 0D										     je	__End
+1  1083
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 20
 main.asm
 
 
 
-   1084				     ; if( CX[i] == 0 )
-1  1085	05EB  74 03										     je	__End
-1  1086
-1  1087	05ED  46										     inc si			    +
-   1088				     ; i++
-1  1089
-1  1090	05EE  EB F4										     jmp __Next
-1  1091
-1  1092	05F0							     __End:
-1  1093	05F0  5D 5E 5A						     pop bp si dx    ; pop  (3)	(2) (1)
-1  1094
-1  1095	05F3  C3						     ret
-1  1096	05F4							     endp
+1  1084	04C2  50										     push ax			    +
+   1085				     ; push (5)
+1  1086	04C3  51										     push cx			    +
+   1087				     ; push (6)
+1  1088	04C4  B4 86										     mov  ah, 86h
+1  1089	04C6  B9 0001										     mov  cx, 1d
+1  1090	04C9  CD 15										     int  15h
+1  1091	04CB  59										     pop  cx			    +
+   1092				     ; pop  (6)
+1  1093	04CC  58										     pop  ax			    +
+   1094				     ; pop  (5)
+1  1095
+1  1096	04CD  EB D6										     jmp __Next
 1  1097
-1  1098				     ;------------------------------------------------
-1  1099				     ;	     THE MEMCMP	FUNCTION COMPARES, BYTE	BY BYTE,
-1  1100				     ;	     THE TWO ARRAYS ARR_1 AND ARR_2.
-1  1101				     ;	     THE COMPARISON CONTINUES UNTIL N BYTES
-1  1102				     ;	     HAVE BEEN CHECKED OR UNTIL	DIFFERENT
-1  1103				     ;	     BYTES ARE ENCOUNTERED.
-1  1104				     ;------------------------------------------------
-1  1105				     ; ENTRY:	     BX	= ARR_1
-1  1106				     ;			     CX	= ARR_2
-1  1107				     ;			     DX	= N
-1  1108				     ; EXIT:	     AX	= 0 ( ARR_1[i] == ARR_2[i] : FOR i in [0; N-1] )
-1  1109				     ;			     AX	> 0 ( ARR_1[i] >  ARR_2[i] )
-1  1110				     ;			     AX	< 0 ( ARR_1[i] <  ARR_2[i] )
-1  1111				     ; DESTROYS: AX
-1  1112				     ;------------------------------------------------
-1  1113
-1  1114	05F4			     MemCmp		     proc
-1  1115
-1  1116	05F4  56 55						     push si bp		     ; push (1)	(2)
-1  1117
-1  1118	05F6  8B E9						     mov bp, cx		     ; BP = CX
-1  1119
-1  1120	05F8  33 F6						     xor si, si		     ; i  = 0
-1  1121
-1  1122	05FA  83 FA 00						     cmp dx, 0d		     ; if( N ==	0 )
-1  1123	05FD  74 18						     je	__End
-1  1124
-1  1125	05FF  33 C0						     __Next:		     xor  ax, ax			    +
-   1126				     ; AX  = 0
-1  1127	0601  8A 00										     mov  al, bx[si]		    +
-   1128				     ; AL  = BX[i]
-1  1129	0603  52										     push dx			    +
-   1130				     ; push (3)
-1  1131	0604  33 D2										     xor  dx, dx		    +
-   1132				     ; DX = 0
-1  1133	0606  8A 12										     mov  dl, bp[si]
-1  1134	0608  2B C2										     sub  ax, dx		    +
-   1135				     ; AX -= CX[i]
-1  1136	060A  5A										     pop  dx			    +
-   1137				     ; pop  (3)
-1  1138
-1  1139	060B  3D 0000										     cmp ax, 0d			    +
-   1140				     ; if( AX != 0 )
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 21
+1  1098	04CF							     __End:
+1  1099	04CF  58						     pop ax		     ; pop  (4)
+1  1100
+1  1101	04D0  88 36 046Dr					     mov BoxData[W_Num], dh
+1  1102	04D4  88 16 046Er					     mov BoxData[H_Num], dl
+1  1103
+1  1104	04D8  E8 FEC4						     call PrintBox
+1  1105
+1  1106	04DB  5A						     pop dx		     ; pop  (3)
+1  1107	04DC  59						     pop cx		     ; pop  (2)
+1  1108	04DD  5B						     pop bx		     ; pop  (1)
+1  1109
+1  1110	04DE  C3						     ret
+1  1111	04DF							     endp
+1  1112
+1  1113				     ;------------------------------------------------
+1  1114				     ;	     INPUT STR
+1  1115				     ;------------------------------------------------
+1  1116				     ; ENTRY:	     BX	= BUFF ADDR
+1  1117				     ; EXIT:	     NONE
+1  1118				     ; DESTROYS:     NONE
+1  1119				     ;------------------------------------------------
+1  1120
+1  1121	04DF			     Input		     proc
+1  1122
+1  1123	04DF  52						     push dx		     ; push (1)
+1  1124	04E0  33 D2						     xor  dx, dx	     ; i = 0
+1  1125
+1  1126	04E2  B4 01						     __Next:		     mov ah, 01h			    +
+   1127				     ; input char
+1  1128	04E4  CD 21										     int 21h
+1  1129
+1  1130	04E6  56										     push si			    +
+   1131				     ; push (2)
+1  1132
+1  1133	04E7  33 F6										     xor si, si			    +
+   1134				     ; SI = 0
+1  1135
+1  1136	04E9  8B F3										     mov si, bx			    +
+   1137				     ; SI = InputStr + DX
+1  1138	04EB  03 F2										     add si, dx
+1  1139
+1  1140	04ED  88 04										     mov [si], al
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 21
 main.asm
 
 
 
-1  1141	060E  75 07										     jne __End
-1  1142
-1  1143	0610  46										     inc si
+1  1141
+1  1142	04EF  5E										     pop si			    +
+   1143				     ; pop  (2)
 1  1144
-1  1145	0611  3B F2										     cmp si, dx			    +
-   1146				     ; if( i ==	N )
-1  1147	0613  74 02										     je	__End
+1  1145	04F0  3C 0D										     cmp al, 13d		    +
+   1146				     ; if( al == '\r' )
+1  1147	04F2  74 03										     je	__End
 1  1148
-1  1149	0615  EB E8										     jmp __Next
-1  1150	0617							     __End:
-1  1151	0617  5D 5E						     pop bp si		     ; pop  (2)	(1)
-1  1152
-1  1153	0619  C3						     ret
-1  1154	061A							     endp
-1  1155
-1  1156				     ;------------------------------------------------
-1  1157				     ;	     THE MEMCMP	FUNCTION COMPARES, BYTE	BY BYTE,
-1  1158				     ;	     THE TWO STRINGS STR_1 AND STR_2.
-1  1159				     ;	     THE COMPARISON CONTINUES UNTIL THE
-1  1160				     ;	     END-OF-LINE( NULL ) OR UNTIL DIFFERENT
-1  1161				     ;	     BYTES ARE ENCOUNTERED.
-1  1162				     ;------------------------------------------------
-1  1163				     ; ENTRY:	     BX	= STR_1
-1  1164				     ;			     CX	= STR_2
-1  1165				     ; EXIT:	     AX	= 0 ( STR_1[i] == STR_2[i] : FOR ALL i )
-1  1166				     ;			     AX	> 0 ( STR_1[i] >  STR_2[i] )
-1  1167				     ;			     AX	< 0 ( STR_1[i] <  STR_2[i] )
-1  1168				     ; DESTROYS: AX
-1  1169				     ;------------------------------------------------
-1  1170
-1  1171	061A			     StrCmp		     proc
-1  1172
-1  1173	061A  56 55						     push si bp		     ; push (1)	(2)
-1  1174
-1  1175	061C  8B E9						     mov bp, cx		     ; BP = CX
-1  1176
-1  1177	061E  33 F6						     xor si, si		     ; i  = 0
-1  1178
-1  1179	0620  33 C0						     __Next:		     xor  ax, ax			    +
-   1180				     ; AX  = 0
-1  1181	0622  8A 00										     mov  al, bx[si]		    +
-   1182				     ; AL  = BX[i]
-1  1183	0624  52										     push dx			    +
-   1184				     ; push (3)
-1  1185	0625  33 D2										     xor  dx, dx		    +
-   1186				     ; DX = 0
-1  1187	0627  8A 12										     mov  dl, bp[si]
-1  1188	0629  2B C2										     sub  ax, dx		    +
-   1189				     ; AX -= CX[i]
-1  1190	062B  5A										     pop  dx			    +
-   1191				     ; pop  (3)
+1  1149	04F4  42										     inc dx			    +
+   1150				     ; i++
+1  1151												     ; cmp dx, InputLen		    +
+   1152				     ; if( i ==	InputLen )
+1  1153												     ; jne __Next
+1  1154
+1  1155	04F5  EB EB										     jmp __Next
+1  1156	04F7							     __End:
+1  1157
+1  1158	04F7  53						     push bx
+1  1159	04F8  03 DA						     add  bx, dx
+1  1160	04FA  C6 07 00						     mov  byte ptr [bx], 0
+1  1161	04FD  5B						     pop  bx
+1  1162
+1  1163	04FE  5A						     pop dx		     ; pop  (1)
+1  1164
+1  1165	04FF  C3						     ret
+1  1166	0500							     endp
+1  1167
+1  1168				     ;------------------------------------------------
+1  1169				     ;	     COPY SCREEN BOX TO	BUFFER
+1  1170				     ;	     USE WORD BUFFER WITH WIDTH	* HEIGHT SIZE
+1  1171				     ;------------------------------------------------
+1  1172				     ; ENTRY:	     AX	= BUFF ADDR
+1  1173				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
+1  1174				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
+1  1175				     ;			     CH	= WIDTH
+1  1176				     ;			     CL	= HEIGHT
+1  1177				     ; EXIT:	     NONE
+1  1178				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
+1  1179				     ; DESTROYS:     NONE
+1  1180				     ;------------------------------------------------
+1  1181
+1  1182	0500			     BoxCpy		     proc
+1  1183
+1  1184	0500  50 53 51 52 57 56					     push ax bx	cx dx di si
+1  1185
+1  1186	0506  8B F8						     mov  di, ax		     ; DI = BuffAddr
+1  1187
+1  1188	0508  E8 FDAA						     call GetVideoPos
+1  1189	050B  8B F0						     mov  si, ax		     ; SI = ScreenPos
+1  1190
+1  1191	050D  D0 E5						     shl ch, 1			     ; WIDTH *=	2
 1  1192
-1  1193	062C  3D 0000										     cmp ax, 0d			    +
-   1194				     ; if( AX != 0 )
-1  1195	062F  75 08										     jne __End
-1  1196
-1  1197	0631  80 38 00										     cmp byte ptr bx[si], 0d	    +
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 22
+1  1193	050F  33 D2						     xor dx, dx			     ; set DX =	N for memcpy
+1  1194	0511  8A D5						     mov dl, ch
+1  1195
+1  1196	0513  8B DF						     mov bx, di			     ; BX = BuffAddr
+1  1197
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 22
 main.asm
 
 
 
-   1198				     ; if( BX[i] == 0 )
-1  1199	0634  74 03										     je	__End
-1  1200
-1  1201	0636  46										     inc si
+1  1198	0515  51						     __Next:			     push cx
+1  1199	0516  8B CE											     mov  cx, si
+1  1200	0518  E8 FCAD											     call memcpy
+1  1201	051B  59											     pop  cx
 1  1202
-1  1203	0637  EB E7										     jmp __Next
-1  1204	0639							     __End:
-1  1205	0639  5D 5E						     pop bp si		     ; pop  (2)	(1)
-1  1206
-1  1207	063B  C3						     ret
-1  1208	063C							     endp
+1  1203	051C  FE C9											     dec cl		    +
+   1204				     ; HEIGHT--
+1  1205
+1  1206	051E  80 F9 00											     cmp cl, 0		    +
+   1207				     ; if( HEIGHT == 0 )
+1  1208	0521  74 08											     je	__End
 1  1209
-1  1210				     ;------------------------------------------------
-1  1211				     ;	     TRANSLATE STR TO NUMBER
-1  1212				     ;------------------------------------------------
-1  1213				     ; ENTRY:	     BX	= STR ADDR
-1  1214				     ; EXIT:	     AX	= NUM
-1  1215				     ; EXPECTS:	     CX	= STR LEN
-1  1216				     ; DESTROYS:     AX
-1  1217				     ;------------------------------------------------
-1  1218
-1  1219	063C			     Atoi		     proc
-1  1220
-1  1221	063C  33 C0						     xor ax, ax		     ; AX = 0
+1  1210	0523  81 C6 00A0										     add si, 160d	    +
+   1211				     ; ScreenPos += 2*80
+1  1212	0527  03 DA											     add bx, dx		    +
+   1213				     ; BuffAddr	 += 2*WIDTH
+1  1214
+1  1215	0529  EB EA											     jmp __Next
+1  1216	052B							     __End:
+1  1217
+1  1218	052B  5E 5F 5A 59 5B 58					     pop si di dx cx bx	ax
+1  1219
+1  1220	0531  C3						     ret
+1  1221	0532							     endp
 1  1222
-1  1223	063E  52 56						     push dx si		     ; push (1)	(2)
-1  1224
-1  1225	0640  33 D2						     xor dx, dx		     ; i = 0
-1  1226
-1  1227	0642  8B F3						     __Next:		     mov si, bx		     ; SI = BX +    +
-   1228				     STR_LEN - i
-1  1229	0644  03 F1										     add si, cx
-1  1230	0646  2B F2										     sub si, dx
-1  1231	0648  83 EE 01										     sub si, 1
-1  1232
-1  1233	064B  51										     push cx		     ; push +
-   1234				     (3)
-1  1235
-1  1236	064C  50										     push ax		     ; push +
-   1237				     (4)
-1  1238	064D  33 C0										     xor  ax, ax     ; AX = 0
-1  1239	064F  8A 04										     mov  al, [si]   ; AX = [SI] -  +
-   1240				     '0'
-1  1241	0651  2C 30										     sub  al, 48d
-1  1242
-1  1243	0653  52										     push dx		     ; push +
-   1244				     (5)
-1  1245	0654  8B CA										     mov  cx, dx	     ; AX = +
-   1246				     AX	* 10^DX
-1  1247	0656  BE 000A										     mov  si, 10d
-1  1248	0659  E3 08										     jcxz __NoMul
-1  1249
-1  1250	065B  F7 E6										     __Mul:		     mul si
+1  1223				     ;------------------------------------------------
+1  1224				     ;	     PASTE BUFFER BOX TO SCREEN
+1  1225				     ;	     USE WORD BUFFER WITH WIDTH	* HEIGHT SIZE
+1  1226				     ;------------------------------------------------
+1  1227				     ; ENTRY:	     AX	= BUFF ADDR
+1  1228				     ;			     BH	= X LEFT CORNER	COORDS [0; 79]
+1  1229				     ;			     BL	= Y LEFT CORNER	COORDS [0; 24]
+1  1230				     ;			     CH	= WIDTH
+1  1231				     ;			     CL	= HEIGHT
+1  1232				     ; EXIT:	     NONE
+1  1233				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
+1  1234				     ; DESTROYS:     NONE
+1  1235				     ;------------------------------------------------
+1  1236
+1  1237	0532			     BoxPaste		     proc
+1  1238
+1  1239	0532  50 53 51 52 57 56	1E+				     push ax bx	cx dx di si ds es
+   1240	      06
+1  1241
+1  1242	053A  8B F8						     mov  di, ax		     ; DI = BuffAddr
+1  1243
+1  1244	053C  E8 FD76						     call GetVideoPos
+1  1245	053F  8B F0						     mov  si, ax		     ; SI = ScreenPos
+1  1246
+1  1247	0541  D0 E5						     shl ch, 1			     ; WIDTH *=	2
+1  1248
+1  1249	0543  33 D2						     xor dx, dx			     ; set DX =	N for memcpy
+1  1250	0545  8A D5						     mov dl, ch
 1  1251
-1  1252	065D  49														    +
-   1253				     dec cx
-1  1254	065E  83 F9 00														    +
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 23
+1  1252	0547  8B DE						     mov bx, si			     ; DESTINATION = ScreenPos
+1  1253
+1  1254	0549  06 1E						     push es ds			     ; swap( DS, ES )
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 23
 main.asm
 
 
 
-   1255				     cmp cx, 0
-1  1256	0661  75 F8														    +
-   1257				     jne __Mul
-1  1258
-1  1259	0663											     __NoMul:
-1  1260	0663  5A										     pop  dx		     ; pop  +
-   1261				     (5)
-1  1262	0664  8B C8										     mov  cx, ax
-1  1263
-1  1264	0666  58										     pop ax		     ; pop  +
-   1265				     (4)
-1  1266	0667  03 C1										     add ax, cx
-1  1267	0669  59										     pop cx		     ; pop  +
-   1268				     (3)
+1  1255	054B  07 1F						     pop  es ds
+1  1256
+1  1257	054D  51						     __Next:			     push cx
+1  1258	054E  8B CF											     mov  cx, di	    +
+   1259				     ; SOURCE =	BuffAddr
+1  1260	0550  E8 FC75											     call memcpy
+1  1261	0553  59											     pop  cx
+1  1262
+1  1263	0554  FE C9											     dec cl		    +
+   1264				     ; HEIGHT--
+1  1265
+1  1266	0556  80 F9 00											     cmp cl, 0		    +
+   1267				     ; if( HEIGHT == 0 )
+1  1268	0559  74 08											     je	__End
 1  1269
-1  1270	066A  42										     inc dx		     ; i++
-1  1271
-1  1272	066B  3B D1										     cmp dx, cx		     ; if( i+
-   1273				     ==	CX )
-1  1274	066D  75 D3										     jne __Next
+1  1270
+1  1271	055B  03 FA											     add di, dx		    +
+   1272				     ; BuffAddr	 += 2*WIDTH
+1  1273	055D  81 C3 00A0										     add bx, 160d	    +
+   1274				     ; ScreenPos += 2*80
 1  1275
-1  1276	066F  5E 5A						     pop si dx		     ; pop  (2)	(1)
-1  1277
-1  1278	0671  C3						     ret
-1  1279	0672							     endp
-1  1280
-1  1281				     ;------------------------------------------------
-   1282
-   1283				     end	     Start
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 24
+1  1276	0561  EB EA											     jmp __Next
+1  1277	0563							     __End:
+1  1278
+1  1279	0563  07 1F 5E 5F 5A 59	5B+				     pop es ds si di dx	cx bx ax
+   1280	      58
+1  1281
+1  1282	056B  C3						     ret
+1  1283	056C							     endp
+1  1284
+1  1285				     ;------------------------------------------------
+1  1286
+   1287
+   1288				     ;------------------------------------------------
+   1289				     ;	 PRINT STR TO CMD LINE
+   1290				     ;------------------------------------------------
+   1291				     ; ENTRY:	 DX = STR
+   1292				     ; EXPECTS:	 END SYM = "$"
+   1293				     ; DESTROYS: NONE
+   1294				     ;------------------------------------------------
+   1295
+   1296	056C			     PrintStrCmd     proc
+   1297	056C  50				     push ax
+   1298
+   1299	056D  B4 09				     mov ah, 09h
+   1300	056F  CD 21				     int 21h
+   1301
+   1302	0571  58				     pop ax
+   1303	0572  C3				     ret
+   1304	0573					     endp
+   1305
+   1306				     ;------------------------------------------------
+   1307
+   1308				     end	     Start
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 24
 Symbol Table
 
 
@@ -1404,9 +1429,9 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??DATE				  Text	 "03/06/23"
+??DATE				  Text	 "03/11/23"
 ??FILENAME			  Text	 "main	  "
-??TIME				  Text	 "17:24:33"
+??TIME				  Text	 "13:07:27"
 ??VERSION			  Number 040A
 @32BIT				  Text	 0
 @CODE				  Text	 DGROUP
@@ -1420,102 +1445,103 @@ Symbol Name			  Type	 Value
 @MODEL				  Text	 1
 @STACK				  Text	 DGROUP
 @WORDSIZE			  Text	 2
-ANIMBOX				  Near	 DGROUP:0482
-ATOI				  Near	 DGROUP:063C
-BOXCPY				  Near	 DGROUP:04FB
-BOXDATA				  Byte	 DGROUP:046E
-BOXPASTE			  Near	 DGROUP:052D
-BUFFSIZE			  Number 0100
-CLRSCREEN			  Near	 DGROUP:02AA
+ANIMBOX				  Near	 DGROUP:047F
+ATOI				  Near	 DGROUP:0243
+BOXCPY				  Near	 DGROUP:0500
+BOXDATA				  Byte	 DGROUP:046B
+BOXPASTE			  Near	 DGROUP:0532
+BUFFSIZE			  Number 0004
+CLRSCREEN			  Near	 DGROUP:02A7
 CLR_NUM				  Number 0004
-CORRECT				  Byte	 DGROUP:0242
-EMPTYSTR			  Byte	 DGROUP:046D
-FILLSCREEN			  Near	 DGROUP:027C
-GETVIDEOPOS			  Near	 DGROUP:02B8
+CORRECT				  Byte	 DGROUP:0143
+EMPTYSTR			  Byte	 DGROUP:046A
+FILLSCREEN			  Near	 DGROUP:0279
+GETVIDEOPOS			  Near	 DGROUP:02B5
 H_NUM				  Number 0003
-INPUT				  Near	 DGROUP:04E2
-MEMCHR				  Near	 DGROUP:057C
-MEMCMP				  Near	 DGROUP:05F4
-MEMCPY				  Near	 DGROUP:05C1
-MEMSET				  Near	 DGROUP:05AE
-PASSWORD			  Byte	 DGROUP:0269
-PASSWORDBUFF			  Byte	 DGROUP:0142
-PRINTBOX			  Near	 DGROUP:03A2
-PRINTCHAR			  Near	 DGROUP:02CA
-PRINTHRZLINE			  Near	 DGROUP:02FB
-PRINTSTR			  Near	 DGROUP:02D5
-PRINTVRTLINE			  Near	 DGROUP:0338
+INPUT				  Near	 DGROUP:04DF
+MEMCHR				  Near	 DGROUP:0183
+MEMCMP				  Near	 DGROUP:01FB
+MEMCPY				  Near	 DGROUP:01C8
+MEMSET				  Near	 DGROUP:01B5
+PASSWORD			  Byte	 DGROUP:016A
+PASSWORDBUFF			  Byte	 DGROUP:0132
+PRINTBOX			  Near	 DGROUP:039F
+PRINTCHAR			  Near	 DGROUP:02C7
+PRINTHRZLINE			  Near	 DGROUP:02F8
+PRINTSTR			  Near	 DGROUP:02D2
+PRINTSTRCMD			  Near	 DGROUP:056C
+PRINTVRTLINE			  Near	 DGROUP:0335
 START				  Near	 DGROUP:0100
-STRCHR				  Near	 DGROUP:0597
-STRCMP				  Near	 DGROUP:061A
-STRCPY				  Near	 DGROUP:05DD
-STRLEN				  Near	 DGROUP:0567
-TYPE_0				  Byte	 DGROUP:0375
-TYPE_1				  Byte	 DGROUP:037E
-TYPE_2				  Byte	 DGROUP:0387
-TYPE_3				  Byte	 DGROUP:0390
-TYPE_4				  Byte	 DGROUP:0399
+STRCHR				  Near	 DGROUP:019E
+STRCMP				  Near	 DGROUP:0221
+STRCPY				  Near	 DGROUP:01E4
+STRLEN				  Near	 DGROUP:016E
+TYPE_0				  Byte	 DGROUP:0372
+TYPE_1				  Byte	 DGROUP:037B
+TYPE_2				  Byte	 DGROUP:0384
+TYPE_3				  Byte	 DGROUP:038D
+TYPE_4				  Byte	 DGROUP:0396
 TYPE_NUM			  Number 0005
-WRONG				  Byte	 DGROUP:0257
-W_NUM				  Number 0002
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 25
+WRONG				  Byte	 DGROUP:0158
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 25
 Symbol Table
 
 
 
+W_NUM				  Number 0002
 X_NUM				  Number 0000
 Y_NUM				  Number 0001
-__CORRECT			  Near	 DGROUP:0120
-__END				  Near	 DGROUP:013B
-__END				  Near	 DGROUP:0298
-__END				  Near	 DGROUP:02F6
-__END				  Near	 DGROUP:0337
-__END				  Near	 DGROUP:0374
-__END				  Near	 DGROUP:04D2
-__END				  Near	 DGROUP:04F6
-__END				  Near	 DGROUP:0526
-__END				  Near	 DGROUP:055E
-__END				  Near	 DGROUP:0579
-__END				  Near	 DGROUP:0595
-__END				  Near	 DGROUP:05AC
-__END				  Near	 DGROUP:05BF
-__END				  Near	 DGROUP:05DA
-__END				  Near	 DGROUP:05F0
-__END				  Near	 DGROUP:0617
-__END				  Near	 DGROUP:0639
-__ENDNEXTLINE			  Near	 DGROUP:02A6
-__ENDPRINTING			  Near	 DGROUP:0333
-__ENDPRINTING			  Near	 DGROUP:0370
-__FOUND				  Near	 DGROUP:0591
-__FOUND				  Near	 DGROUP:05A8
-__MUL				  Near	 DGROUP:065B
-__NEXT				  Near	 DGROUP:0289
-__NEXT				  Near	 DGROUP:02DB
-__NEXT				  Near	 DGROUP:0326
-__NEXT				  Near	 DGROUP:0363
-__NEXT				  Near	 DGROUP:04A8
-__NEXT				  Near	 DGROUP:04E6
-__NEXT				  Near	 DGROUP:0510
-__NEXT				  Near	 DGROUP:0548
-__NEXT				  Near	 DGROUP:056B
-__NEXT				  Near	 DGROUP:0586
-__NEXT				  Near	 DGROUP:059C
-__NEXT				  Near	 DGROUP:05B6
-__NEXT				  Near	 DGROUP:05CC
-__NEXT				  Near	 DGROUP:05E4
-__NEXT				  Near	 DGROUP:05FF
-__NEXT				  Near	 DGROUP:0620
-__NEXT				  Near	 DGROUP:0642
-__NEXTLINE			  Near	 DGROUP:0286
-__NOINCH			  Near	 DGROUP:04BF
-__NOINCW			  Near	 DGROUP:04B5
-__NOMUL				  Near	 DGROUP:0663
-__WRONG				  Near	 DGROUP:012F
+__CORRECT			  Near	 DGROUP:011C
+__END				  Near	 DGROUP:012B
+__END				  Near	 DGROUP:0180
+__END				  Near	 DGROUP:019C
+__END				  Near	 DGROUP:01B3
+__END				  Near	 DGROUP:01C6
+__END				  Near	 DGROUP:01E1
+__END				  Near	 DGROUP:01F7
+__END				  Near	 DGROUP:021E
+__END				  Near	 DGROUP:0240
+__END				  Near	 DGROUP:0295
+__END				  Near	 DGROUP:02F3
+__END				  Near	 DGROUP:0334
+__END				  Near	 DGROUP:0371
+__END				  Near	 DGROUP:04CF
+__END				  Near	 DGROUP:04F7
+__END				  Near	 DGROUP:052B
+__END				  Near	 DGROUP:0563
+__ENDNEXTLINE			  Near	 DGROUP:02A3
+__ENDPRINTING			  Near	 DGROUP:0330
+__ENDPRINTING			  Near	 DGROUP:036D
+__FOUND				  Near	 DGROUP:0198
+__FOUND				  Near	 DGROUP:01AF
+__MUL				  Near	 DGROUP:0262
+__NEXT				  Near	 DGROUP:0172
+__NEXT				  Near	 DGROUP:018D
+__NEXT				  Near	 DGROUP:01A3
+__NEXT				  Near	 DGROUP:01BD
+__NEXT				  Near	 DGROUP:01D3
+__NEXT				  Near	 DGROUP:01EB
+__NEXT				  Near	 DGROUP:0206
+__NEXT				  Near	 DGROUP:0227
+__NEXT				  Near	 DGROUP:0249
+__NEXT				  Near	 DGROUP:0286
+__NEXT				  Near	 DGROUP:02D8
+__NEXT				  Near	 DGROUP:0323
+__NEXT				  Near	 DGROUP:0360
+__NEXT				  Near	 DGROUP:04A5
+__NEXT				  Near	 DGROUP:04E2
+__NEXT				  Near	 DGROUP:0515
+__NEXT				  Near	 DGROUP:054D
+__NEXTLINE			  Near	 DGROUP:0283
+__NOINCH			  Near	 DGROUP:04BC
+__NOINCW			  Near	 DGROUP:04B2
+__NOMUL				  Near	 DGROUP:026A
+__WRONG				  Near	 DGROUP:0125
 
 Macro Name
 
 EXIT
-Turbo Assembler	 Version 4.1	    03/06/23 17:24:34	    Page 26
+Turbo Assembler	 Version 4.1	    03/11/23 13:07:28	    Page 26
 Symbol Table
 
 
@@ -1525,5 +1551,5 @@ Groups & Segments		  Bit Size Align  Combine Class
 
 DGROUP				  Group
   _DATA				  16  0000 Word	  Public  DATA
-  _TEXT				  16  0672 Word	  Public  CODE
+  _TEXT				  16  0573 Word	  Public  CODE
 

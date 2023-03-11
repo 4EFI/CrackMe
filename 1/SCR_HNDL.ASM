@@ -571,35 +571,46 @@ AnimBox			proc
 ;------------------------------------------------
 ;	INPUT STR
 ;------------------------------------------------
-; ENTRY:	BX = OFFSET BUFFER
-;			CX = MAX BUFF SIZE 
-; EXIT:		AX = STR LEN
-; DESTROYS:	AX
-;------------------------------------------------
+; ENTRY:	BX = BUFF ADDR
+; EXIT:		NONE
+; DESTROYS:	NONE
+;------------------------------------------------ 			
 
 Input			proc 
 
-				push bx dx	
-
+				push dx			; push (1)
 				xor  dx, dx		; i = 0
 
 				__Next:			mov ah, 01h					; input char
 								int 21h
-							
+
+								push si						; push (2)
+
+								xor si, si					; SI = 0
+
+								mov si, bx					; SI = InputStr + DX
+								add si, dx 					
+								
+								mov [si], al
+
+								pop si						; pop  (2)
+
 								cmp al, 13d					; if( al == '\r' )
 								je __End
-								
-								mov [bx], al				; Buff[i] = AL
 
 								inc dx						; i++
-								inc bx						
-								cmp dx, cx					; if( i == Buff_Size )
-								jne __Next	
+								; cmp dx, InputLen			; if( i == InputLen )
+								; jne __Next
 
+								jmp __Next
 				__End:	
 
-				mov ax, dx
-				pop dx bx		; pop  (1)
+				push bx
+				add  bx, dx
+				mov  byte ptr [bx], 0
+				pop  bx 
+
+				pop dx			; pop  (1)
 			
 				ret 
 				endp
