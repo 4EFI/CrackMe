@@ -5,15 +5,14 @@ SRC = src/draw_circle.cpp
 
 # already compiled objects
 
-SFML_LIB_PATH = ./SFML-2.5.1/lib/
-SFML_LIBS     = $(SFML_LIB_PATH)libsfml-graphics.a $(SFML_LIB_PATH)libsfml-window.a $(SFML_LIB_PATH)libsfml-system.a 
+SFML_LIBS = -lsfml-graphics -lsfml-window -lsfml-system 
 
-LIBS = $(SFML_LIBS) $(wildcard ../src/build/*.o)
+LIBS = $(wildcard ./src/build/*.o) 
 
 # output file name
 
-OUTPUT_FILE_NAME = ../draw_circle.exe
+OUTPUT_FILE_NAME = draw_circle
 
 CC = g++
 CFLAGS = -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-equal -Winline -Wunreachable-code -Wmissing-declarations -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Weffc++ -Wmain -Wextra -Wall -g -pipe -fexceptions -Wcast-qual -Wconversion -Wctor-dtor-privacy -Wempty-body -Wformat-security -Wformat=2 -Wignored-qualifiers -Wlogical-op -Wmissing-field-initializers -Wnon-virtual-dtor -Woverloaded-virtual -Wpointer-arith -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing -Wstrict-null-sentinel -Wtype-limits -Wwrite-strings -D_DEBUG -D_EJUDGE_CLIENT_SIDE
-IFLAGS = -I./src/include/ -I./SFML-2.5.1/include/
+IFLAGS = -I./src/include/ 
