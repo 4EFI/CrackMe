@@ -10,7 +10,12 @@ locals __
 
 include 	    TOOLS.ASM 				    ; Exit
 
-Start:          mov bx, 0b800h              ; ES = VideoSeg
+Start:          jmp __Skip
+                BuffSize = 16d 
+                PasswordBuff    db BuffSize dup (12, 64, 85, 14) , 0
+                __Skip:
+
+                mov bx, 0b800h              ; ES = VideoSeg
                 mov es, bx
 
                 mov  bx, offset PasswordBuff
@@ -41,9 +46,6 @@ Start:          mov bx, 0b800h              ; ES = VideoSeg
                 EXIT
 
 ;------------------------------------------------
-
-BuffSize = 16d  
-PasswordBuff    db BuffSize dup (12, 64, 85, 14) , 0
 
 Correct         db "Correct Password :))$"
 Wrong           db "Wrong Password :($"
