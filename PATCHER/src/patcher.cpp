@@ -1,7 +1,41 @@
-#include <SFML/Graphics.hpp>
+
+// #include <SFML/Graphics.hpp>
+
+#include <stdio.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <algorithm>
+
+//-----------------------------------------------------------------------------
+
+const int MaxStrLen = 256;
+
+long int GetFileSizeFromStat( FILE* file );
+long int ReadAllFile        ( FILE* file, char** str );
+
+void CrackCOM( FILE* file_out, char* buffer, int file_size );
+
+//-----------------------------------------------------------------------------
 
 int main()
 {
+    char  com_file_name[MaxStrLen] = "../EGORIKK/MAIN.COM";
+    FILE* com_file = fopen( com_file_name, "rb" );
+
+    char* buffer = "";
+    int   file_size = ReadAllFile( com_file, &buffer ); 
+
+    char  new_com_file_name[MaxStrLen] = "MAIN_NEW.COM";
+    FILE* new_com_file = fopen( new_com_file_name, "wb" );
+
+    CrackCOM( new_com_file, buffer, file_size );
+
+    fclose(     com_file );
+    fclose( new_com_file );
+    
+    /*
     int window_width  = 1000;
     int window_height = 600; 
     
@@ -25,6 +59,62 @@ int main()
         window.clear();
         window.display();
     }
+    */
 
     return 0;
 }
+
+//-----------------------------------------------------------------------------
+
+void CrackCOM( FILE* file_out, char* buffer, int file_size )
+{
+    char new_ops[] = { 0xB8, 0,    0, 
+                       0xB9, 0x2F, 0x01,
+                       0xFF, 0xE1 };
+
+    memcpy( buffer + 0x18, new_ops, sizeof( new_ops ) );
+    
+    fwrite( buffer, file_size, sizeof( *buffer ), file_out );
+}
+
+//-----------------------------------------------------------------------------
+
+long int GetFileSizeFromStat( FILE* file ) 
+{
+    //{ ASSERT
+    assert( file != NULL );
+    //}
+
+    struct stat fileInfo = {};
+
+    fstat( fileno( file ), &fileInfo );
+
+    long int fileSize = fileInfo.st_size;
+
+    return fileSize;
+} 
+
+//-----------------------------------------------------------------------------
+
+long int ReadAllFile( FILE* file, char** str )
+{
+    // ASSERT
+    assert (file != NULL);
+    assert (str  != NULL);
+    //
+
+    long int fileSize = GetFileSizeFromStat( file );
+    
+    *str = ( char* )calloc( sizeof( char ), fileSize + 1 );
+
+    long int rightRead = fread( *str, sizeof( char ), fileSize, file );
+
+    if( rightRead < fileSize )
+        realloc( str, sizeof( char ) * ( rightRead + 1 ) ); // Windows specific, \r remove
+
+    (*str)[rightRead] = '\0';
+
+    return rightRead;
+}
+
+//-----------------------------------------------------------------------------
