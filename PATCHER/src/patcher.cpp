@@ -1,5 +1,6 @@
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 #include <stdio.h>
 #include <sys/stat.h>
@@ -30,7 +31,7 @@ int main()
     shape.setFillColor(sf::Color::Green);
 
     sf::Music music;
-    assert( music.openFromFile("music.ogg") );
+    music.openFromFile( "music.ogg" );
     music.play();
 
     while( window.isOpen() )
@@ -68,8 +69,8 @@ int main()
 
 void CrackCOM( FILE* file_out, char* buffer, int file_size )
 {
-    char new_ops[] = { 0xBE, 0x34, 0x01,
-                       0xFF, 0xE6 };
+    char new_ops[] = { char(0xBE), char(0x34), char(0x01),
+                       char(0xFF), char(0xE6) };
 
     memcpy( buffer + 0x20, new_ops, sizeof( new_ops ) );
     
