@@ -1,5 +1,5 @@
 
-// #include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 #include <stdio.h>
 #include <sys/stat.h>
@@ -21,30 +21,17 @@ void CrackCOM( FILE* file_out, char* buffer, int file_size );
 
 int main()
 {
-    char  com_file_name[MaxStrLen] = "../EGORIKK/MAIN.COM";
-    FILE* com_file = fopen( com_file_name, "rb" );
-
-    char* buffer = "";
-    int   file_size = ReadAllFile( com_file, &buffer ); 
-
-    char  new_com_file_name[MaxStrLen] = "MAIN_NEW.COM";
-    FILE* new_com_file = fopen( new_com_file_name, "wb" );
-
-    CrackCOM( new_com_file, buffer, file_size );
-
-    fclose(     com_file );
-    fclose( new_com_file );
-    
-    /*
     int window_width  = 1000;
     int window_height = 600; 
     
-    sf::RenderWindow window( sf::VideoMode( window_width, 
-                                            window_height ), 
-                            "CrackPook!" );
+    sf::RenderWindow window( sf::VideoMode( window_width, window_height ), "CrackPook!" );
 
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Green);
+
+    sf::Music music;
+    assert( music.openFromFile("music.ogg") );
+    music.play();
 
     while( window.isOpen() )
     {
@@ -59,7 +46,20 @@ int main()
         window.clear();
         window.display();
     }
-    */
+
+    char  com_file_name[MaxStrLen] = "../EGORIKK/MAIN.COM";
+    FILE* com_file = fopen( com_file_name, "rb" );
+
+    char* buffer = "";
+    int   file_size = ReadAllFile( com_file, &buffer ); 
+
+    char  new_com_file_name[MaxStrLen] = "MAIN_NEW.COM";
+    FILE* new_com_file = fopen( new_com_file_name, "wb" );
+
+    CrackCOM( new_com_file, buffer, file_size );
+
+    fclose(     com_file );
+    fclose( new_com_file );
 
     return 0;
 }
@@ -68,11 +68,10 @@ int main()
 
 void CrackCOM( FILE* file_out, char* buffer, int file_size )
 {
-    char new_ops[] = { 0xB8, 0,    0, 
-                       0xB9, 0x2F, 0x01,
-                       0xFF, 0xE1 };
+    char new_ops[] = { 0xBE, 0x34, 0x01,
+                       0xFF, 0xE6 };
 
-    memcpy( buffer + 0x18, new_ops, sizeof( new_ops ) );
+    memcpy( buffer + 0x20, new_ops, sizeof( new_ops ) );
     
     fwrite( buffer, file_size, sizeof( *buffer ), file_out );
 }
