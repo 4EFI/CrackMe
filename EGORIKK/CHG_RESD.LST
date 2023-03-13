@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 1
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 1
 chg_resd.asm
 
 
@@ -60,7 +60,7 @@ chg_resd.asm
      55	012C  BA 0896r				     mov dx, offset EOP
      56	012F  C1 EA 04				     shr dx, 4
      57	0132  42				     inc dx
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 2
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 2
 chg_resd.asm
 
 
@@ -122,7 +122,7 @@ chg_resd.asm
 1   112	0426  B0 20				     mov al, 20h			 ; End-of-Intr
 1   113	0428  E6 20				     out 20h, al
 1   114
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 3
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 3
 chg_resd.asm
 
 
@@ -184,7 +184,7 @@ chg_resd.asm
     169				     mov es:[bx], ax
 1   170	0445  83 C3 02														    +
     171				     add bx, 2
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 4
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 4
 chg_resd.asm
 
 
@@ -246,7 +246,7 @@ chg_resd.asm
 1   226	046B  E8 FFC7						     call FillScreen
 1   227
 1   228	046E  59						     pop cx			     ; pop  (2)
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 5
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 5
 chg_resd.asm
 
 
@@ -308,7 +308,7 @@ chg_resd.asm
 1   283	048A  58						     pop ax		     ; pop  (2)
 1   284	048B  AB						     stosw
 1   285
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 6
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 6
 chg_resd.asm
 
 
@@ -370,7 +370,7 @@ chg_resd.asm
 1   340	04B3  C3						     ret
 1   341	04B4							     endp
 1   342
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 7
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 7
 chg_resd.asm
 
 
@@ -432,7 +432,7 @@ chg_resd.asm
 1   397	04E6  3A F5										     cmp dh, ch
 1   398	04E8  74 02										     je	 __EndPrinting
 1   399
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 8
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 8
 chg_resd.asm
 
 
@@ -494,7 +494,7 @@ chg_resd.asm
 1   454	050E  51						     push cx			     ; push (7)
 1   455
 1   456	050F  80 C3 01						     add bl, 1			     ; Y += 1
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 9
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 9
 chg_resd.asm
 
 
@@ -556,7 +556,7 @@ chg_resd.asm
 1   511	0552  DA C0 BF D9 B3 B3	C4+  Type_4  db		     0dah,   0c0h,   0bfh,   0d9h,   0b3h,   0b3h,   0c4h,   0c4h,   0d
     512	      C4 00
 1   513
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 10
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 10
 chg_resd.asm
 
 
@@ -618,7 +618,7 @@ chg_resd.asm
 1   568	059E  53						     push bx				     ; push (9)	<> push	(X; +
     569				     Y)
 1   570
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 11
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 11
 chg_resd.asm
 
 
@@ -680,7 +680,7 @@ chg_resd.asm
 1   625	05FE  BF 0002						     mov  di, 2d
 1   626	0601  F7 F7						     div  di
 1   627	0603  8A 3C						     mov  bh, si[X_Num]		     ; X += AL
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 12
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 12
 chg_resd.asm
 
 
@@ -742,7 +742,7 @@ chg_resd.asm
 1   682	065D  50						     push ax		     ; push (4)
 1   683	065E  B8 0626r						     mov  ax, offset EmptyStr
 1   684
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 13
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 13
 chg_resd.asm
 
 
@@ -804,7 +804,7 @@ chg_resd.asm
 1   739				     ; ENTRY:	     NONE
 1   740				     ; EXIT:	     AX	= STR LEN
 1   741				     ; DESTROYS:     AX
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 14
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 14
 chg_resd.asm
 
 
@@ -866,7 +866,7 @@ chg_resd.asm
 1   796				     ;			     CH	= WIDTH
 1   797				     ;			     CL	= HEIGHT
 1   798				     ; EXIT:	     NONE
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 15
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 15
 chg_resd.asm
 
 
@@ -928,7 +928,7 @@ chg_resd.asm
 1   853				     ; EXIT:	     NONE
 1   854				     ; EXPECTS:	     ES	= 0b800h (VIDEO	SEGMENT)
 1   855				     ; DESTROYS:     NONE
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 16
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 16
 chg_resd.asm
 
 
@@ -990,7 +990,7 @@ chg_resd.asm
 1   910				     ;------------------------------------------------
 1   911				     ;	     GET STR LEN
 1   912				     ;------------------------------------------------
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 17
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 17
 chg_resd.asm
 
 
@@ -1052,7 +1052,7 @@ chg_resd.asm
 1   967	07AC  74 07										     je	__Found
 1   968
 1   969	07AE  46										     inc si
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 18
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 18
 chg_resd.asm
 
 
@@ -1114,7 +1114,7 @@ chg_resd.asm
 1  1024
 1  1025				     ;------------------------------------------------
 1  1026				     ;	     THE MEMSET	FUNCTION FILLS
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 19
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 19
 chg_resd.asm
 
 
@@ -1176,7 +1176,7 @@ chg_resd.asm
 1  1081
 1  1082	07E5  56 55						     push si bp		     ; push (1)	(2)
 1  1083
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 20
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 20
 chg_resd.asm
 
 
@@ -1238,7 +1238,7 @@ chg_resd.asm
    1138				     ; BX[i] = CX[i]
 1  1139
 1  1140	080C  80 3A 00										     cmp byte ptr bp[si], 0d	    +
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 21
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 21
 chg_resd.asm
 
 
@@ -1300,7 +1300,7 @@ chg_resd.asm
 1  1195
 1  1196	082F  3D 0000										     cmp ax, 0d			    +
    1197				     ; if( AX != 0 )
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 22
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 22
 chg_resd.asm
 
 
@@ -1362,7 +1362,7 @@ chg_resd.asm
 1  1252	0853  75 08										     jne __End
 1  1253
 1  1254	0855  80 38 00										     cmp byte ptr bx[si], 0d	    +
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 23
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 23
 chg_resd.asm
 
 
@@ -1424,7 +1424,7 @@ chg_resd.asm
 1  1309	0881  49														    +
    1310				     dec cx
 1  1311	0882  83 F9 00														    +
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 24
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 24
 chg_resd.asm
 
 
@@ -1460,7 +1460,7 @@ chg_resd.asm
    1340	0896			     EOP:
    1341
    1342				     end		     Start
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 25
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 25
 Symbol Table
 
 
@@ -1468,9 +1468,9 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??DATE				  Text	 "03/11/23"
+??DATE				  Text	 "03/13/23"
 ??FILENAME			  Text	 "chg_resd"
-??TIME				  Text	 "21:35:28"
+??TIME				  Text	 "16:37:52"
 ??VERSION			  Number 040A
 @32BIT				  Text	 0
 @CODE				  Text	 DGROUP
@@ -1522,7 +1522,7 @@ START				  Near	 DGROUP:0100
 STRCHR				  Near	 DGROUP:07BB
 STRCMP				  Near	 DGROUP:083E
 STRCPY				  Near	 DGROUP:0801
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 26
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 26
 Symbol Table
 
 
@@ -1584,7 +1584,7 @@ __NOINCW			  Near	 DGROUP:066E
 __NOMUL				  Near	 DGROUP:0887
 __NOPRINTREGS			  Near	 DGROUP:042E
 __PRINTREGS			  Near	 DGROUP:03FF
-Turbo Assembler	 Version 4.1	    03/11/23 21:35:28	    Page 27
+Turbo Assembler	 Version 4.1	    03/13/23 16:37:53	    Page 27
 Symbol Table
 
 

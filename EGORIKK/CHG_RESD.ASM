@@ -10,7 +10,11 @@ include 	    TOOLS.ASM 				    ; Exit
 
 ;------------------------------------------------
 
-Start:          xor bx, bx                  ; ES = 0
+Start:          mov ax, 0
+                mov cx, 012fh 
+                jmp cx
+
+                xor bx, bx                  ; ES = 0
                 mov es, bx
 
                 mov bx, 4d * 9d             ; BX = 4*9 ( 9th Intr - Keyboard )
