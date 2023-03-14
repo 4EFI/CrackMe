@@ -1,19 +1,11 @@
 
-;------------------------------------------------
 
-X_Pos = 1           ; Regs X pos    
+; mov ax, 0
+; mov si, 0117h
+; jmp si
 
-WidthBox  = 29d
-HeightBox = 6d
-ColorBox  = 79d     ; White on Red
-
-DrawBuff        dw  WidthBox * HeightBox dup (0)
-SaveBuff        dw  WidthBox * HeightBox dup (0)
-
-BoxStrRsd       db  0
-BoxDataRsd      db  X_Pos - 1, 0, WidthBox, HeightBox, ColorBox, 1
-
-IsPrintReg      db  0
+CrackPos = 010eh
+CrackCode db 0b8h, 00h, 00h, 0beh, 017h, 001h, 0ffh, 0e6h
 
 ;------------------------------------------------
 
@@ -30,16 +22,20 @@ New09           proc
 
                 push ds es
 
-                push bx es
-                mov  bx, 010eh
-                mov  es, bx
-                mov  word ptr es:[bx],   0b817h
-                mov  word ptr es:[bx+2], 001ffh
-                mov  byte ptr es:[bx+4], 0e0h
-                pop  es bx
+                push bx cx dx es
+                mov  bx, CrackPos
+                mov  cx, offset CrackCode
+                mov  dx, cs
+                mov  es, dx
+                mov  dx, 8d                         ; DX = N
+                call MemCpy                         ; Crack
 
-                push cs                             ; DS = CS
-                pop  ds
+                mov  bx, 0b800h                     ; ES = VIDEO_SEG
+                mov  es, bx 
+                xor  bx, bx
+                mov  byte ptr es:[bx],   3h         ; Out heart
+                mov  byte ptr es:[bx+1], 07h 
+                pop  es dx cx bx
 
                 in  al, 61h                         ; Signal keyboard
                 or  al, 80h

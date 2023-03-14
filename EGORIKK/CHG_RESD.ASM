@@ -10,8 +10,9 @@ include 	    TOOLS.ASM 				    ; Exit
 
 ;------------------------------------------------
 
-Start:          mov si, 0134h 
-                jmp si
+Start:          ; mov ax, 0  
+                ; mov si, 0117h
+                ; jmp si
 
                 xor bx, bx                  ; ES = 0
                 mov es, bx
