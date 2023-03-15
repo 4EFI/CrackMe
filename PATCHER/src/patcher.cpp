@@ -8,6 +8,7 @@
 #include <string.h>
 #include <assert.h>
 #include <algorithm>
+#include <time.h>
 
 //-----------------------------------------------------------------------------
 
@@ -16,23 +17,45 @@ const int MaxStrLen = 256;
 long int GetFileSizeFromStat( FILE* file );
 long int ReadAllFile        ( FILE* file, char** str );
 
+int GetRandNum( int min, int max );
+
 void CrackCOM( FILE* file_out, char* buffer, int file_size );
 
 //-----------------------------------------------------------------------------
 
 int main()
 {
-    int window_width  = 1000;
-    int window_height = 600; 
+    srand( time( NULL ) );
+    
+    int window_width  = 1600;
+    int window_height = 1000; 
     
     sf::RenderWindow window( sf::VideoMode( window_width, window_height ), "CrackPook!" );
-
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+    window.setFramerateLimit(1);
 
     sf::Music music;
     music.openFromFile( "music.ogg" );
     music.play();
+
+    sf::RectangleShape progress_bar( sf::Vector2f( 0, 50 ) );
+
+    progress_bar.setPosition ( 0, window_height - 50 );
+    progress_bar.setFillColor( sf::Color::Green );
+
+    sf::Image mario_image;
+    mario_image.loadFromFile( "mario.png" );
+
+    sf::Texture mario_texture;
+    mario_texture.loadFromImage( mario_image );
+
+    sf::Vector2f mario_size( 170, 220 );
+    sf::RectangleShape mario( mario_size );
+    mario.setTexture ( &mario_texture );
+    mario.setPosition( 0, window_height - mario_size.y - 50 );
+
+    int x = 0;
+    
+    bool is_progress_bar_right = true;
 
     while( window.isOpen() )
     {
@@ -41,10 +64,40 @@ int main()
         {
             if( event.type == sf::Event::Closed ) window.close();
         }
-
         
+        if( is_progress_bar_right )
+        {
+            if( x < window_width )
+            {
+                x += 100;
+                if( x > window_width ) x = window_width; 
+            }
+            else
+            {
+                is_progress_bar_right = false;
+            }
+        }
+        else
+        {
+            if( x > 0 )
+            {
+                x -= 100;
+                if( x < 0 ) x = 0; 
+            }
+            else
+            {
+                is_progress_bar_right = true;
+            }
+        }
 
-        window.clear();
+        progress_bar.setSize( sf::Vector2f( x, progress_bar.getSize().y ) );
+
+        mario.setPosition( GetRandNum( 0, window_width  - mario_size.x ), 
+                           GetRandNum( 0, window_height - mario_size.y - 50 ) );
+
+        window.clear( sf::Color::White );
+        window.draw( progress_bar );
+        window.draw( mario );
         window.display();
     }
 
@@ -116,5 +169,12 @@ long int ReadAllFile( FILE* file, char** str )
 
     return rightRead;
 }
+
+//-----------------------------------------------------------------------------
+
+int GetRandNum( int min, int max )
+{
+    return rand() % ( max - min + 1 )+ min;
+}  
 
 //-----------------------------------------------------------------------------
