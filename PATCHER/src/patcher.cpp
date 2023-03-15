@@ -12,34 +12,40 @@
 
 //-----------------------------------------------------------------------------
 
-const int MaxStrLen = 256;
+enum ProgressBarStates { isRight, isLeft };
+
+const int Max_Str_Len = 256;
+
+int Window_Width  = 1600;
+int Window_Height = 1000;
 
 long int GetFileSizeFromStat( FILE* file );
 long int ReadAllFile        ( FILE* file, char** str );
 
 int GetRandNum( int min, int max );
 
-void CrackCOM( FILE* file_out, char* buffer, int file_size );
+int ProgressBarHandler( sf::RectangleShape* progress_bar, 
+                        sf::Vector2f*       progress_bar_size );
+
+void CrackCOM();
 
 //-----------------------------------------------------------------------------
 
 int main()
 {
-    srand( time( NULL ) );
+    srand( time( NULL ) ); 
     
-    int window_width  = 1600;
-    int window_height = 1000; 
-    
-    sf::RenderWindow window( sf::VideoMode( window_width, window_height ), "CrackPook!" );
+    sf::RenderWindow window( sf::VideoMode( Window_Width, Window_Height ), "CrackPook!" );
     window.setFramerateLimit(1);
 
     sf::Music music;
     music.openFromFile( "music.ogg" );
     music.play();
 
-    sf::RectangleShape progress_bar( sf::Vector2f( 0, 50 ) );
+    sf::Vector2f       progress_bar_size( 0, 50 );
+    sf::RectangleShape progress_bar( progress_bar_size );
 
-    progress_bar.setPosition ( 0, window_height - 50 );
+    progress_bar.setPosition ( 0, Window_Height - progress_bar_size.y );
     progress_bar.setFillColor( sf::Color::Green );
 
     sf::Image mario_image;
@@ -50,12 +56,9 @@ int main()
 
     sf::Vector2f mario_size( 170, 220 );
     sf::RectangleShape mario( mario_size );
-    mario.setTexture ( &mario_texture );
-    mario.setPosition( 0, window_height - mario_size.y - 50 );
-
-    int x = 0;
     
-    bool is_progress_bar_right = true;
+    mario.setTexture ( &mario_texture );
+    mario.setPosition( 0, Window_Height - mario_size.y - 50 );
 
     while( window.isOpen() )
     {
@@ -64,36 +67,11 @@ int main()
         {
             if( event.type == sf::Event::Closed ) window.close();
         }
-        
-        if( is_progress_bar_right )
-        {
-            if( x < window_width )
-            {
-                x += 100;
-                if( x > window_width ) x = window_width; 
-            }
-            else
-            {
-                is_progress_bar_right = false;
-            }
-        }
-        else
-        {
-            if( x > 0 )
-            {
-                x -= 100;
-                if( x < 0 ) x = 0; 
-            }
-            else
-            {
-                is_progress_bar_right = true;
-            }
-        }
 
-        progress_bar.setSize( sf::Vector2f( x, progress_bar.getSize().y ) );
+        ProgressBarHandler( &progress_bar, &progress_bar_size );
 
-        mario.setPosition( GetRandNum( 0, window_width  - mario_size.x ), 
-                           GetRandNum( 0, window_height - mario_size.y - 50 ) );
+        mario.setPosition( GetRandNum( 0, Window_Width  - mario_size.x ), 
+                           GetRandNum( 0, Window_Height - mario_size.y - 50 ) );
 
         window.clear( sf::Color::White );
         window.draw( progress_bar );
@@ -101,33 +79,71 @@ int main()
         window.display();
     }
 
-    char  com_file_name[MaxStrLen] = "../EGORIKK/MAIN.COM";
-    FILE* com_file = fopen( com_file_name, "rb" );
-
-    char* buffer = "";
-    int   file_size = ReadAllFile( com_file, &buffer ); 
-
-    char  new_com_file_name[MaxStrLen] = "MAIN_NEW.COM";
-    FILE* new_com_file = fopen( new_com_file_name, "wb" );
-
-    CrackCOM( new_com_file, buffer, file_size );
-
-    fclose(     com_file );
-    fclose( new_com_file );
+    CrackCOM();
 
     return 0;
 }
 
 //-----------------------------------------------------------------------------
 
-void CrackCOM( FILE* file_out, char* buffer, int file_size )
+int ProgressBarHandler( sf::RectangleShape* progress_bar, 
+                        sf::Vector2f*       progress_bar_size )
 {
+    static bool progress_bar_state = ProgressBarStates::isRight;
+    static int  curr_size          = 0;
+    
+    if( progress_bar_state == ProgressBarStates::isRight )
+        {
+            if( curr_size < Window_Width )
+            {
+                curr_size += 100;
+                if( curr_size > Window_Width ) curr_size = Window_Width; 
+            }
+            else
+            {
+                progress_bar_state = ProgressBarStates::isLeft;
+            }
+        }
+        else
+        {
+            if( curr_size > 0 )
+            {
+                curr_size -= 100;
+                if( curr_size < 0 ) curr_size = 0; 
+            }
+            else
+            {
+                progress_bar_state = ProgressBarStates::isRight;
+            }
+        }
+
+        progress_bar->setSize( sf::Vector2f( curr_size, progress_bar->getSize().y ) );
+
+        return 0;
+}
+
+//-----------------------------------------------------------------------------
+
+void CrackCOM()
+{
+    char  com_file_name[Max_Str_Len] = "../EGORIKK/MAIN.COM";
+    FILE* com_file = fopen( com_file_name, "rb" );
+
+    char* buffer = "";
+    int   file_size = ReadAllFile( com_file, &buffer ); 
+
+    char  new_com_file_name[Max_Str_Len] = "MAIN_NEW.COM";
+    FILE* new_com_file = fopen( new_com_file_name, "wb" );
+    
     char new_ops[] = { char(0xBE), char(0x34), char(0x01),
                        char(0xFF), char(0xE6) };
 
     memcpy( buffer + 0x20, new_ops, sizeof( new_ops ) );
     
-    fwrite( buffer, file_size, sizeof( *buffer ), file_out );
+    fwrite( buffer, file_size, sizeof( *buffer ), new_com_file );
+
+    fclose(     com_file );
+    fclose( new_com_file );
 }
 
 //-----------------------------------------------------------------------------
